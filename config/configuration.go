@@ -36,6 +36,10 @@ func Init(filePath string) {
 		log.Fatalf("error_decode_config: %v", err)
 	}
 
+	if configuration.Server.Port == 0 {
+		configuration.Server.Port = 8080
+	}
+
 	config = configuration
 }
 
