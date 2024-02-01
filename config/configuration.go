@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"log"
+
+	"github.com/spf13/viper"
+)
 
 var config *Configuration
 
@@ -29,7 +33,7 @@ func Init(filePath string) {
 	viper.ReadInConfig()
 
 	if err := viper.Unmarshal(&configuration); err != nil {
-		panic(err)
+		log.Fatalf("error_decode_config: %v", err)
 	}
 
 	config = configuration

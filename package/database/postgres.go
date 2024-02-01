@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"gin-boilerplate/config"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,7 +24,7 @@ func Init() {
 	)
 	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Fatalf("error_connecting_to_database: %v", err)
 	}
 
 	db = conn
