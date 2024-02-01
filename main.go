@@ -1,8 +1,16 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"gin-boilerplate/config"
+	"gin-boilerplate/package/database"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
+	Init()
+
 	gin.ForceConsoleColor()
 
 	router := gin.Default()
@@ -11,5 +19,10 @@ func main() {
 		c.String(200, "OK")
 	})
 
-	router.Run(":8080")
+	router.Run(fmt.Sprintf(":%d", config.GetConfiguration().Server.Port))
+}
+
+func Init() {
+	config.Init("config.yml")
+	database.Init()
 }
