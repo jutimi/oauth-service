@@ -5,13 +5,12 @@ import (
 	"gin-boilerplate/config"
 	"gin-boilerplate/package/database"
 	logger "gin-boilerplate/package/log"
+	"gin-boilerplate/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	Init()
-
 	router := gin.Default()
 	router.Use(gin.LoggerWithWriter(logger.GetLogger().Writer()))
 
@@ -22,8 +21,11 @@ func main() {
 	router.Run(fmt.Sprintf(":%d", config.GetConfiguration().Server.Port))
 }
 
-func Init() {
-	config.Init("config.yml")
+func init() {
+	rootDir := utils.RootDir()
+	configFile := fmt.Sprintf("%s/config.yml", rootDir)
+
+	config.Init(configFile)
 	database.Init()
 	logger.Init()
 }
