@@ -119,10 +119,8 @@ func generateFuncName(fileName, action string) string {
 	name := parts[1:]
 	fileName = strings.Join(name, "_")
 	switch action {
-	case migrations.ACTION_UP:
-		return "up" + utils.ConvertToCamelCase(utils.RemoveFileNameExtension(fileName))
-	case migrations.ACTION_DOWN:
-		return "down" + utils.ConvertToCamelCase(utils.RemoveFileNameExtension(fileName))
+	case migrations.ACTION_UP, migrations.ACTION_DOWN:
+		return action + utils.ConvertToCamelCase(utils.RemoveFileNameExtension(fileName))
 	default:
 		return ""
 	}

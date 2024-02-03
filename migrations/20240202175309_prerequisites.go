@@ -11,7 +11,7 @@ func init() {
 
 func upPrerequisites(db *gorm.DB) error {
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
-	db.Exec("CREATE TABLE migrations (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), created_at timestamptz NOT NULL DEFAULT NOW());")
+	db.Exec("CREATE TABLE migrations (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name TEXT NOT NULL, file TEXT NOT NULL);")
 	return nil
 }
 
