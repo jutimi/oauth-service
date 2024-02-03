@@ -10,11 +10,13 @@ require (
 	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/elliotchance/orderedmap v1.5.1 // indirect
 	github.com/goccy/go-yaml v1.11.2 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/mikefarah/yq/v4 v4.40.5 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect

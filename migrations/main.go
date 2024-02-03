@@ -2,58 +2,69 @@ package migrations
 
 import (
 	"fmt"
-
-	"gorm.io/gorm"
+	"reflect"
 )
 
-// Migration interface defines methods for applying and rolling back migrations.
-type migration interface {
-	Migrate(db *gorm.DB) error
-	Rollback(db *gorm.DB) error
+const (
+	ACTION_CREATE = "create"
+	ACTION_UP     = "up"
+	ACTION_DOWN   = "down"
+)
+
+type Migration struct {
+	UpFunc   map[string]interface{}
+	DownFunc map[string]interface{}
 }
 
-// MigrationList holds all registered migrations.
-var MigrationList []migration
-
-// RegisterMigration registers a migration to the list.
-func RegisterMigration(migration migration) {
-	MigrationList = append(MigrationList, migration)
+var migrations = &Migration{
+	UpFunc:   make(map[string]interface{}),
+	DownFunc: make(map[string]interface{}),
 }
 
-// RegisterMigrations registers multiple migrations to the list.
-func RegisterMigrations(migrations ...migration) {
-	MigrationList = append(MigrationList, migrations...)
+func RegisterUpFunc(name string, function interface{}) {
+	migrations.UpFunc[name] = function
 }
 
-// GetMigrations returns all registered migrations.
-func GetMigrations() []migration {
-	return MigrationList
+func RegisterDownFunc(name string, function interface{}) {
+	migrations.DownFunc[name] = function
 }
 
-// RunMigrations applies all registered migrations to the database.
-func RunMigrations(db *gorm.DB) error {
-	for _, migration := range MigrationList {
-		err := migration.Migrate(db)
-		if err != nil {
-			// Rollback all applied migrations
-			rollbackErr := RollbackMigrations(db)
-			if rollbackErr != nil {
-				return fmt.Errorf("failed to rollback migrations after error: %w", rollbackErr)
-			}
+func Run(name string, action string, args ...interface{}) error {
+	// Check if the function exists
+	var (
+		fn interface{}
+		ok bool
+	)
+	switch action {
+	case ACTION_UP:
+		fn, ok = migrations.UpFunc[name]
+		if !ok {
+			return fmt.Errorf("function %s not found", name)
+		}
+	case ACTION_DOWN:
+		fn, ok = migrations.DownFunc[name]
+		if !ok {
+			return fmt.Errorf("function %s not found", name)
+		}
+	default:
+		return fmt.Errorf("function %s not supported", name)
+	}
 
-			return fmt.Errorf("failed to apply migration: %w", err)
+	var inputArgs []reflect.Value
+	for _, arg := range args {
+		inputArgs = append(inputArgs, reflect.ValueOf(arg))
+	}
+
+	result := reflect.ValueOf(fn).Call(inputArgs)
+
+	// Check for errors in the result
+	for _, r := range result {
+		if r.Type().String() == "error" && !r.IsNil() {
+			fmt.Printf("error run migrate %s: %s\n", name, r.Interface())
+
+			continue
 		}
 	}
-	return nil
-}
 
-// RollbackMigrations rolls back all registered migrations from the database.
-func RollbackMigrations(db *gorm.DB) error {
-	for i := len(MigrationList) - 1; i >= 0; i-- {
-		err := MigrationList[i].Rollback(db)
-		if err != nil {
-			return fmt.Errorf("failed to rollback migration: %w", err)
-		}
-	}
-	return nil
+	return nil // Function call was successful
 }

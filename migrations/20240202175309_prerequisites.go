@@ -4,13 +4,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type PREREQUISITES_MIGRATION struct{}
+func init() {
+	RegisterUpFunc("upPrerequisites", upPrerequisites)
+	RegisterDownFunc("downPrerequisites", downPrerequisites)
+}
 
-func (m *PREREQUISITES_MIGRATION) Migrate(db *gorm.DB) error {
+func upPrerequisites(db *gorm.DB) error {
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
+	db.Exec("CREATE TABLE migrations (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), created_at timestamptz NOT NULL DEFAULT NOW());")
 	return nil
 }
 
-func (m *PREREQUISITES_MIGRATION) Rollback(db *gorm.DB) error {
+func downPrerequisites(db *gorm.DB) error {
 	return nil
 }
