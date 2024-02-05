@@ -6,7 +6,6 @@ import (
 	"gin-boilerplate/migrations"
 	"gin-boilerplate/package/database"
 	"gin-boilerplate/utils"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -176,9 +175,8 @@ func removeMigrationByName(name string) error {
 func runMultipleMigrations(action string, db *gorm.DB) {
 	// Get all migrations file
 	dirPath := utils.RootDir() + "/migrations"
-	files, err := ioutil.ReadDir(dirPath)
+	files, err := utils.GetAllFileInDir(dirPath)
 	if err != nil {
-		fmt.Println("Error reading migrations directory:", err.Error())
 		return
 	}
 

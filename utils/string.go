@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -21,8 +20,4 @@ func ConvertToCamelCase(str string) string {
 	// Concatenate the words
 	result := strings.Join(parts, "")
 	return result
-}
-
-func RemoveFileNameExtension(fileName string) string {
-	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
