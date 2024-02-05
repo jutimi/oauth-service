@@ -12,7 +12,10 @@ func init() {
 }
 
 func upCreateTableUser(db *gorm.DB) error {
-	db.Migrator().CreateTable(&entity.User{})
+	if !db.Migrator().HasTable(&entity.User{}) {
+		db.Migrator().CreateTable(&entity.User{})
+	}
+
 	return nil
 }
 
