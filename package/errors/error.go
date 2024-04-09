@@ -8,9 +8,6 @@ import (
 
 	logger "gin-boilerplate/package/log"
 	_validator "gin-boilerplate/package/validator"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type CustomError struct {
@@ -25,6 +22,8 @@ const (
 const (
 	ErrCodeRequired        = 1
 	ErrCodeValidatorFormat = 2
+
+	ErrCodeInternalServerError = 500
 )
 
 var messages = map[int]map[string]string{
@@ -33,6 +32,9 @@ var messages = map[int]map[string]string{
 	},
 	ErrCodeValidatorFormat: {
 		LangVN: "không hợp lệ. Vui lòng kiểm tra lại",
+	},
+	ErrCodeInternalServerError: {
+		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
 	},
 }
 
@@ -50,11 +52,23 @@ func NewCustomError(code int, message string) *CustomError {
 	}
 }
 
-func newValidatorError(code int, field string) *CustomError {
-	return &CustomError{
-		Code:    code,
-		Message: fmt.Sprintf("%s %s", field, messages[code][LangVN]),
+func NewValidatorError(err error) *CustomError {
+	var validatorErr validator.ValidationErrors
+	if errors.As(err, &validatorErr) {
+		errDetail := validatorErr[0]
+
+		field := errDetail.Field()
+		tag := errDetail.Tag()
+
+		code := convertValidatorTag(tag)
+		return &CustomError{
+			Code:    code,
+			Message: fmt.Sprintf("%s %s", field, messages[code][LangVN]),
+		}
+
 	}
+
+	return New(ErrCodeInternalServerError)
 }
 
 func (err *CustomError) Error() string {
@@ -65,27 +79,7 @@ func (err *CustomError) GetCode() int {
 	return err.Code
 }
 
-func (err *CustomError) ResponseError() {
-	return
-}
-
-func HandleValidatorError(c *gin.Context, err error) {
-	var validatorErr validator.ValidationErrors
-	if errors.As(err, &validatorErr) {
-		errDetail := validatorErr[0]
-		field := errDetail.Field()
-		tag := errDetail.Tag()
-		code := convertValidatorTag(tag)
-		errRes := newValidatorError(code, field)
-
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errRes})
-		return
-	}
-
-	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	return
-}
-
+// --------------------------------------
 func convertValidatorTag(tag string) int {
 	logger.GetLogger().Info("validation_tag: ", tag)
 	switch tag {

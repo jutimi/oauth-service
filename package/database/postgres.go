@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var postgresDB *gorm.DB
 
-func Init() {
+func InitPostgres() {
 	config := config.GetConfiguration().Database
 
 	dsn := fmt.Sprintf(
@@ -27,9 +27,9 @@ func Init() {
 		log.Fatalf("error_connecting_to_database: %v", err)
 	}
 
-	db = conn
+	postgresDB = conn
 }
 
 func GetDB() *gorm.DB {
-	return db
+	return postgresDB
 }

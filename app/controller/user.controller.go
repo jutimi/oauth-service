@@ -21,11 +21,19 @@ func NewAPIUserController(router *gin.Engine) {
 func login(c *gin.Context) {
 	var data model.LoginRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
-		_errors.HandleValidatorError(c, err)
+		resErr := _errors.NewValidatorError(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   resErr,
+		})
+
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    data,
+	})
 }
 
 func register(c *gin.Context) {
