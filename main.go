@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gin-boilerplate/app/controller"
+	"gin-boilerplate/app/middleware"
 	"gin-boilerplate/config"
 	"gin-boilerplate/package/database"
 	logger "gin-boilerplate/package/log"
@@ -24,6 +25,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(gin.LoggerWithWriter(logger.GetLogger().Writer()))
+	router.Use(middleware.NewTimeoutMiddleware().Handler())
 
 	// Register validator
 	v := binding.Validator.Engine().(*validator.Validate)

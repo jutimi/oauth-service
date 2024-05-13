@@ -12,7 +12,7 @@ type LoginResponse struct {
 
 type RegisterRequest struct {
 	Password        string `json:"password" binding:"required"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
+	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=password"`
 	Email           string `json:"email" binding:"omitempty,email"`
 	PhoneNumber     string `json:"phone_number" binding:"omitempty,phone_number"`
 }

@@ -30,6 +30,6 @@ func InitPostgres() {
 	postgresDB = conn
 }
 
-func GetDB() *gorm.DB {
+func GetPostgres() *gorm.DB {
 	return postgresDB
 }

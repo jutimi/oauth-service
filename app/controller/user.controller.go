@@ -3,6 +3,7 @@ package controller
 import (
 	"gin-boilerplate/app/model"
 	_errors "gin-boilerplate/package/errors"
+	"gin-boilerplate/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,18 +23,12 @@ func login(c *gin.Context) {
 	var data model.LoginRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   resErr,
-		})
+		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(resErr))
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    data,
-	})
+	c.JSON(http.StatusOK, utils.FormatSuccessResponse(model.LoginResponse{}))
 }
 
 func register(c *gin.Context) {

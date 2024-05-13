@@ -3,10 +3,10 @@ package repository
 import "gin-boilerplate/app/entity"
 
 type UserRepository interface {
-	Create(user *entity.User) error
-	Update(user *entity.User) error
-	Delete(user *entity.User) error
-	New() *entity.User
-	BulkCreate(users []entity.User) error
-	FindOneByFilter(filter *FindUserByFilter) (*entity.User, error)
+	CreateUser(user *entity.User) error
+	UpdateUser(user *entity.User) error
+	DeleteUser(user *entity.User) error
+	NewUser() *entity.User
+	BulkCreateUser(users []entity.User) error
+	FindUserByFilter(filter *FindUserByFilter) (*entity.User, error)
 }

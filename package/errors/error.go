@@ -24,6 +24,7 @@ const (
 	ErrCodeValidatorFormat = 2
 
 	ErrCodeInternalServerError = 500
+	ErrCodeTimeout             = 408
 )
 
 var messages = map[int]map[string]string{
@@ -34,6 +35,9 @@ var messages = map[int]map[string]string{
 		LangVN: "không hợp lệ. Vui lòng kiểm tra lại",
 	},
 	ErrCodeInternalServerError: {
+		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
+	},
+	ErrCodeTimeout: {
 		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
 	},
 }

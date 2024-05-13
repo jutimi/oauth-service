@@ -96,7 +96,7 @@ func %s(db *gorm.DB) error {
 }
 
 func migrate(args []string, action string) {
-	db := database.GetDB()
+	db := database.GetPostgres()
 
 	if len(args) > 3 {
 		fmt.Println("Too many arguments")
@@ -135,7 +135,7 @@ func logMigration(name, fileName string) error {
 		Name: name,
 		File: fileName,
 	}
-	result := database.GetDB().Create(&migration)
+	result := database.GetPostgres().Create(&migration)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -146,7 +146,7 @@ func logMigration(name, fileName string) error {
 func getMigrationsByName(name string) ([]migrations.MigrationTable, error) {
 	var data []migrations.MigrationTable
 
-	db := database.GetDB()
+	db := database.GetPostgres()
 	result := db.Where(&migrations.MigrationTable{Name: name}).Find(&data)
 	if result.Error != nil {
 		return nil, result.Error
@@ -158,7 +158,7 @@ func getMigrationsByName(name string) ([]migrations.MigrationTable, error) {
 func removeMigrationByName(name string) error {
 	var data *migrations.MigrationTable
 
-	db := database.GetDB()
+	db := database.GetPostgres()
 	result := db.Where(&migrations.MigrationTable{Name: name}).First(&data)
 	if result.Error != nil {
 		return result.Error
