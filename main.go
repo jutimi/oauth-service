@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"gin-boilerplate/app/controller"
-	"gin-boilerplate/app/middleware"
+	"gin-boilerplate/app/repository"
+	"gin-boilerplate/app/service"
 	"gin-boilerplate/config"
 	"gin-boilerplate/package/database"
 	logger "gin-boilerplate/package/log"
@@ -25,19 +26,21 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(gin.LoggerWithWriter(logger.GetLogger().Writer()))
-	router.Use(middleware.NewTimeoutMiddleware().Handler())
 
 	// Register validator
 	v := binding.Validator.Engine().(*validator.Validate)
 	_validator.RegisterCustomValidators(v)
 
+	// Register repositories
+	db := database.GetPostgres()
+	repo := repository.RegisterMysqlRepositories(db)
+	services := service.RegisterServices(repo)
+
 	// Register controllers
 	router.GET("/health-check", func(c *gin.Context) {
 		c.String(200, "OK")
 	})
-	registerControllers(router)
-
-	// Register services
+	controller.RegisterControllers(router, services)
 
 	// Start server
 	srv := &http.Server{
@@ -52,12 +55,7 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
 	quit := make(chan os.Signal)
-	// kill (no param) default send syscanll.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutdown Server ...")
@@ -83,8 +81,4 @@ func init() {
 	config.Init(configFile)
 	database.InitPostgres()
 	logger.Init()
-}
-
-func registerControllers(router *gin.Engine) {
-	controller.NewAPIUserController(router)
 }

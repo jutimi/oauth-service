@@ -1,8 +1,7 @@
-package mysql_repository
+package repository
 
 import (
 	"gin-boilerplate/app/entity"
-	"gin-boilerplate/app/repository"
 	"time"
 
 	"gorm.io/gorm"
@@ -12,10 +11,14 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.UserRepository {
+func NewMysqlUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{
 		db,
 	}
+}
+
+func (r *userRepository) NewUserTransaction() *gorm.DB {
+	return r.db.Begin()
 }
 
 func (r *userRepository) CreateUser(user *entity.User) error {
@@ -43,8 +46,14 @@ func (r *userRepository) BulkCreateUser(users []entity.User) error {
 	return r.db.Create(&users).Error
 }
 
-func (r *userRepository) FindUserByFilter(filter *repository.FindUserByFilter) (*entity.User, error) {
+func (r *userRepository) FindUserByFilter(filter *FindUserByFilter) (*entity.User, error) {
 	var user *entity.User
 	err := r.db.First(&user).Error
+	return user, err
+}
+
+func (r *userRepository) FindUsersByFilter(filer *FindUserByFilter) ([]entity.User, error) {
+	var user []entity.User
+	err := r.db.Find(&user).Error
 	return user, err
 }

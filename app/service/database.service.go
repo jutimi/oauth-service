@@ -3,6 +3,8 @@ package service
 import (
 	"gin-boilerplate/app/entity"
 	"gin-boilerplate/app/repository"
+
+	"gorm.io/gorm"
 )
 
 type databaseService struct {
@@ -34,4 +36,12 @@ func (s *databaseService) BulkCreateUser(users []entity.User) error {
 }
 func (s *databaseService) FindUserByFilter(filter *repository.FindUserByFilter) (*entity.User, error) {
 	return s.mysqlUseRepo.FindUserByFilter(filter)
+}
+
+func (s *databaseService) FindUsersByFilter(filter *repository.FindUserByFilter) ([]entity.User, error) {
+	return s.mysqlUseRepo.FindUsersByFilter(filter)
+}
+
+func (s *databaseService) NewUserTransaction() *gorm.DB {
+	return s.mysqlUseRepo.NewUserTransaction()
 }

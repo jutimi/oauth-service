@@ -23,6 +23,9 @@ const (
 	ErrCodeRequired        = 1
 	ErrCodeValidatorFormat = 2
 
+	ErrCodeUserNotFound = 100
+	ErrCodeUserExisted  = 101
+
 	ErrCodeInternalServerError = 500
 	ErrCodeTimeout             = 408
 )
@@ -39,6 +42,14 @@ var messages = map[int]map[string]string{
 	},
 	ErrCodeTimeout: {
 		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
+	},
+
+	// User Error
+	ErrCodeUserNotFound: {
+		LangVN: "Không tìm thấy người dùng. Vui lòng kiểm tra lại",
+	},
+	ErrCodeUserExisted: {
+		LangVN: "Người dùng đã đăng ký tài khoản. Vui lòng kiểm tra lại",
 	},
 }
 

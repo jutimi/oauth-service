@@ -5,12 +5,21 @@ import (
 	"gin-boilerplate/utils"
 	"io"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
 
 var logger *logrus.Logger
+
+type LogPrintln struct {
+	FileName  string
+	FuncName  string
+	TraceData string
+	Msg       string
+}
 
 func Init() {
 	log := logrus.New()
@@ -37,4 +46,16 @@ func Init() {
 
 func GetLogger() *logrus.Logger {
 	return logger
+}
+
+func Println(params LogPrintln) {
+	paramArr := make([]string, 0)
+	v := reflect.ValueOf(params)
+
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Interface() != "" {
+			paramArr = append(paramArr, fmt.Sprintf("%v", v.Field(i).Interface()))
+		}
+	}
+	GetLogger().Printf("%s \n", strings.Join(paramArr, " - "))
 }
