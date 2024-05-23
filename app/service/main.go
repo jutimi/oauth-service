@@ -1,14 +1,18 @@
 package service
 
-import "gin-boilerplate/app/repository"
+import (
+	mysql_repository "gin-boilerplate/app/repository/mysql"
+)
 
 type ServiceCollections struct {
 	UserSvc UserService
 }
 
-func RegisterServices(repo repository.RepositoryCollections) ServiceCollections {
+func RegisterServices(
+	mysqlRepo mysql_repository.MysqlRepositoryCollections,
+) ServiceCollections {
 	databaseSvc := NewDatabaseService(
-		repo.MysqlUserRepo,
+		mysqlRepo.MysqlUserRepo,
 	)
 	userSvc := NewUserService(databaseSvc)
 

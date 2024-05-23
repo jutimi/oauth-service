@@ -22,7 +22,7 @@ func NewUserService(
 }
 
 func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*model.LoginResponse, error) {
-	existedUser, err := s.databaseSvc.FindUsersByFilter(&repository.FindUserByFilter{
+	user, err := s.databaseSvc.FindUserByFilter(&repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
 	})
@@ -33,16 +33,29 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 			TraceData: fmt.Sprintf("%s/%s", data.Email, data.PhoneNumber),
 			Msg:       "databaseSvc FindUserByFilter - " + err.Error(),
 		})
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
-
-	if len(existedUser) > 0 {
-		return nil, errors.New(errors.ErrCodeUserExisted)
+		return nil, errors.New(errors.ErrCodeUserNotFound)
 	}
 
 	return nil, nil
 }
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
+	existedUser, err := s.databaseSvc.FindUsersByFilter(&repository.FindUserByFilter{
+		PhoneNumber: data.PhoneNumber,
+		Email:       data.Email,
+	})
+	if err != nil {
+		logger.Println(logger.LogPrintln{
+			FileName:  "app/service/user.service.go",
+			FuncName:  "Register",
+			TraceData: fmt.Sprintf("%s/%s", data.Email, data.PhoneNumber),
+			Msg:       "databaseSvc FindUsersByFilter - " + err.Error(),
+		})
+		return nil, errors.New(errors.ErrCodeInternalServerError)
+	}
+	if len(existedUser) > 0 {
+		return nil, errors.New(errors.ErrCodeUserExisted)
+	}
+
 	return nil, nil
 }
 func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*model.LogoutResponse, error) {
