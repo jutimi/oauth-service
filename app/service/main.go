@@ -12,7 +12,7 @@ func RegisterServices(
 	mysqlRepo mysql_repository.MysqlRepositoryCollections,
 ) ServiceCollections {
 	databaseSvc := NewDatabaseService(
-		mysqlRepo.MysqlUserRepo,
+		mysqlRepo,
 	)
 	userSvc := NewUserService(databaseSvc)
 
