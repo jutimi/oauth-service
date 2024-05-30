@@ -14,4 +14,5 @@ type UserService interface {
 
 type DatabaseService interface {
 	repository.UserRepository
+	repository.OAuthRepository
 }

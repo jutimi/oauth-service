@@ -7,13 +7,16 @@ import (
 )
 
 type MysqlRepositoryCollections struct {
-	MysqlUserRepo repository.UserRepository
+	MysqlUserRepo  repository.UserRepository
+	MysqlOAuthRepo repository.OAuthRepository
 }
 
 func RegisterMysqlRepositories(db *gorm.DB) MysqlRepositoryCollections {
 	mysqlUserRepo := NewMysqlUserRepository(db)
+	mysqlOAuthRepo := NewMysqlOAuthRepository(db)
 
 	return MysqlRepositoryCollections{
-		MysqlUserRepo: mysqlUserRepo,
+		MysqlUserRepo:  mysqlUserRepo,
+		MysqlOAuthRepo: mysqlOAuthRepo,
 	}
 }

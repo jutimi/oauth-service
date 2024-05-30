@@ -26,6 +26,7 @@ func NewUserService(
 func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*model.LoginResponse, error) {
 	conf := config.GetConfiguration().Jwt
 
+	// Check user exit
 	user, err := s.databaseSvc.FindUserByFilter(&repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
@@ -40,6 +41,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 		return nil, errors.New(errors.ErrCodeUserNotFound)
 	}
 
+	// Generate token
 	payload := &utils.UserPayload{
 		ID: user.ID,
 	}
@@ -64,6 +66,8 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 
+	// Create User OAuth
+
 	return &model.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -71,6 +75,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 }
 
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
+	// Check user exited
 	existedUser, err := s.databaseSvc.FindUsersByFilter(&repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,

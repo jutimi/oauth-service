@@ -16,3 +16,11 @@ type UserRepository interface {
 	FindUserByFilter(filter *FindUserByFilter) (*entity.User, error)
 	FindUsersByFilter(filer *FindUserByFilter) ([]entity.User, error)
 }
+
+type OAuthRepository interface {
+	NewOAuthTransaction() *gorm.DB
+	CreateOAuth(oauth *entity.Oauth) error
+	UpdateOAuth(oauth *entity.Oauth) error
+	NewOAuth() *entity.Oauth
+	FindOAuthByFilter(filter *FindOAuthByFilter) (*entity.Oauth, error)
+}
