@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"gin-boilerplate/app/entity"
 	"gin-boilerplate/app/repository"
 	mysql_repository "gin-boilerplate/app/repository/mysql"
@@ -20,49 +21,71 @@ func NewDatabaseService(
 	}
 }
 
-func (s *databaseService) CreateUser(user *entity.User) error {
-	return s.mysqlRepo.MysqlUserRepo.CreateUser(user)
+func (s *databaseService) CreateUser(
+	ctx context.Context,
+	tx *gorm.DB,
+	user *entity.User,
+) error {
+	return s.mysqlRepo.MysqlUserRepo.CreateUser(ctx, tx, user)
 }
-func (s *databaseService) UpdateUser(user *entity.User) error {
-	return s.mysqlRepo.MysqlUserRepo.UpdateUser(user)
+func (s *databaseService) UpdateUser(
+	ctx context.Context,
+	tx *gorm.DB,
+	user *entity.User,
+) error {
+	return s.mysqlRepo.MysqlUserRepo.UpdateUser(ctx, tx, user)
 }
-func (s *databaseService) DeleteUser(user *entity.User) error {
-	return s.mysqlRepo.MysqlUserRepo.DeleteUser(user)
-}
-func (s *databaseService) NewUser() *entity.User {
-	return s.mysqlRepo.MysqlUserRepo.NewUser()
-}
-func (s *databaseService) BulkCreateUser(users []entity.User) error {
-	return s.mysqlRepo.MysqlUserRepo.BulkCreateUser(users)
-}
-func (s *databaseService) FindUserByFilter(filter *repository.FindUserByFilter) (*entity.User, error) {
-	return s.mysqlRepo.MysqlUserRepo.FindUserByFilter(filter)
-}
-
-func (s *databaseService) FindUsersByFilter(filter *repository.FindUserByFilter) ([]entity.User, error) {
-	return s.mysqlRepo.MysqlUserRepo.FindUsersByFilter(filter)
-}
-
-func (s *databaseService) NewUserTransaction() *gorm.DB {
-	return s.mysqlRepo.MysqlUserRepo.NewUserTransaction()
+func (s *databaseService) DeleteUser(
+	ctx context.Context,
+	tx *gorm.DB,
+	user *entity.User,
+) error {
+	return s.mysqlRepo.MysqlUserRepo.DeleteUser(ctx, tx, user)
 }
 
-func (s *databaseService) NewOAuthTransaction() *gorm.DB {
-	return s.mysqlRepo.MysqlOAuthRepo.NewOAuthTransaction()
+func (s *databaseService) BulkCreateUser(
+	ctx context.Context,
+	tx *gorm.DB,
+	users []entity.User,
+) error {
+	return s.mysqlRepo.MysqlUserRepo.BulkCreateUser(ctx, tx, users)
+}
+func (s *databaseService) FindUserByFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindUserByFilter,
+) (*entity.User, error) {
+	return s.mysqlRepo.MysqlUserRepo.FindUserByFilter(ctx, tx, filter)
 }
 
-func (s *databaseService) CreateOAuth(oauth *entity.Oauth) error {
-	return s.mysqlRepo.MysqlOAuthRepo.CreateOAuth(oauth)
+func (s *databaseService) FindUsersByFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindUserByFilter,
+) ([]entity.User, error) {
+	return s.mysqlRepo.MysqlUserRepo.FindUsersByFilter(ctx, tx, filter)
 }
 
-func (s *databaseService) UpdateOAuth(oauth *entity.Oauth) error {
-	return s.mysqlRepo.MysqlOAuthRepo.UpdateOAuth(oauth)
+func (s *databaseService) CreateOAuth(
+	ctx context.Context,
+	tx *gorm.DB,
+	oauth *entity.Oauth,
+) error {
+	return s.mysqlRepo.MysqlOAuthRepo.CreateOAuth(ctx, tx, oauth)
 }
 
-func (s *databaseService) NewOAuth() *entity.Oauth {
-	return s.mysqlRepo.MysqlOAuthRepo.NewOAuth()
+func (s *databaseService) UpdateOAuth(
+	ctx context.Context,
+	tx *gorm.DB,
+	oauth *entity.Oauth,
+) error {
+	return s.mysqlRepo.MysqlOAuthRepo.UpdateOAuth(ctx, tx, oauth)
 }
 
-func (s *databaseService) FindOAuthByFilter(filter *repository.FindOAuthByFilter) (*entity.Oauth, error) {
-	return s.mysqlRepo.MysqlOAuthRepo.FindOAuthByFilter(filter)
+func (s *databaseService) FindOAuthByFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindOAuthByFilter,
+) (*entity.Oauth, error) {
+	return s.mysqlRepo.MysqlOAuthRepo.FindOAuthByFilter(ctx, tx, filter)
 }

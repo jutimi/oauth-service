@@ -1,26 +1,23 @@
 package repository
 
 import (
+	"context"
 	"gin-boilerplate/app/entity"
 
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	NewUserTransaction() *gorm.DB
-	CreateUser(user *entity.User) error
-	UpdateUser(user *entity.User) error
-	DeleteUser(user *entity.User) error
-	NewUser() *entity.User
-	BulkCreateUser(users []entity.User) error
-	FindUserByFilter(filter *FindUserByFilter) (*entity.User, error)
-	FindUsersByFilter(filer *FindUserByFilter) ([]entity.User, error)
+	CreateUser(ctx context.Context, tx *gorm.DB, user *entity.User) error
+	UpdateUser(ctx context.Context, tx *gorm.DB, user *entity.User) error
+	DeleteUser(ctx context.Context, tx *gorm.DB, user *entity.User) error
+	BulkCreateUser(ctx context.Context, tx *gorm.DB, users []entity.User) error
+	FindUserByFilter(ctx context.Context, tx *gorm.DB, filter *FindUserByFilter) (*entity.User, error)
+	FindUsersByFilter(ctx context.Context, tx *gorm.DB, filer *FindUserByFilter) ([]entity.User, error)
 }
 
 type OAuthRepository interface {
-	NewOAuthTransaction() *gorm.DB
-	CreateOAuth(oauth *entity.Oauth) error
-	UpdateOAuth(oauth *entity.Oauth) error
-	NewOAuth() *entity.Oauth
-	FindOAuthByFilter(filter *FindOAuthByFilter) (*entity.Oauth, error)
+	CreateOAuth(ctx context.Context, tx *gorm.DB, oauth *entity.Oauth) error
+	UpdateOAuth(ctx context.Context, tx *gorm.DB, oauth *entity.Oauth) error
+	FindOAuthByFilter(ctx context.Context, tx *gorm.DB, filter *FindOAuthByFilter) (*entity.Oauth, error)
 }

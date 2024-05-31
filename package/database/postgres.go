@@ -33,3 +33,7 @@ func InitPostgres() {
 func GetPostgres() *gorm.DB {
 	return postgresDB
 }
+
+func BeginPostgresTransaction() *gorm.DB {
+	return GetPostgres().Begin()
+}

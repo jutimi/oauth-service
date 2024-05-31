@@ -5,10 +5,11 @@ import "github.com/google/uuid"
 type FindUserByFilter struct {
 	Email       string
 	PhoneNumber string
+	ID          uuid.UUID
 }
 
 type FindOAuthByFilter struct {
-	UserId   uuid.UUID
+	UserID   uuid.UUID
 	Token    string
 	PlatForm string
 }

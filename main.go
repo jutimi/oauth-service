@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gin-boilerplate/app/controller"
+	"gin-boilerplate/app/helper"
 	repository "gin-boilerplate/app/repository/mysql"
 	"gin-boilerplate/app/service"
 	"gin-boilerplate/config"
@@ -34,8 +35,8 @@ func main() {
 	// Register repositories
 	db := database.GetPostgres()
 	mysqlRepo := repository.RegisterMysqlRepositories(db)
-
-	services := service.RegisterServices(mysqlRepo)
+	helpers := helper.RegisterHelpers(mysqlRepo)
+	services := service.RegisterServices(helpers, mysqlRepo)
 
 	// Register controllers
 	router.GET("/health-check", func(c *gin.Context) {

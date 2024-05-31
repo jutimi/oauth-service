@@ -33,3 +33,7 @@ func InitMysql() {
 func GetMysql() *gorm.DB {
 	return mysqlDB
 }
+
+func BeginMysqlTransaction() *gorm.DB {
+	return GetMysql().Begin()
+}
