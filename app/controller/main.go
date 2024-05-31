@@ -8,5 +8,6 @@ import (
 )
 
 func RegisterControllers(router *gin.Engine, services service.ServiceCollections) {
-	api.NewAPIUserController(router, services)
+	api.NewApiUserController(router, services)
+	api.NewApiOAuthController(router, services)
 }

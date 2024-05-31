@@ -17,7 +17,7 @@ type accountHandler struct {
 	services service.ServiceCollections
 }
 
-func NewAPIUserController(router *gin.Engine, services service.ServiceCollections) {
+func NewApiUserController(router *gin.Engine, services service.ServiceCollections) {
 	handler := accountHandler{services}
 
 	group := router.Group("api/v1/users")
@@ -60,7 +60,7 @@ func (h *accountHandler) register(c *gin.Context) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
-	ctx = context.WithValue(ctx, "gin", c)
+	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 
 	res, err := h.services.UserSvc.Register(ctx, &data)
 	if err != nil {
@@ -81,7 +81,8 @@ func (h *accountHandler) logout(c *gin.Context) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
-	ctx = context.WithValue(ctx, "gin", c)
+	type key string
+	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 
 	res, err := h.services.UserSvc.Logout(ctx, &data)
 	if err != nil {

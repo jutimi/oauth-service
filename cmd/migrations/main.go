@@ -19,7 +19,7 @@ func init() {
 	configFile := fmt.Sprintf("%s/config.yml", rootDir)
 
 	config.Init(configFile)
-	database.InitPostgres()
+	database.InitMysql()
 }
 
 func main() {
@@ -96,7 +96,7 @@ func %s(db *gorm.DB) error {
 }
 
 func migrate(args []string, action string) {
-	db := database.GetPostgres()
+	db := database.GetMysql()
 
 	if len(args) > 3 {
 		fmt.Println("Too many arguments")
@@ -112,7 +112,7 @@ func migrate(args []string, action string) {
 	runMigration(fileName, action, db)
 }
 
-// Helper func
+// -------------------------------------------------------------------------------
 func generateFuncName(fileName, action string) string {
 	name := generateName(fileName)
 	switch action {
@@ -135,7 +135,7 @@ func logMigration(name, fileName string) error {
 		Name: name,
 		File: fileName,
 	}
-	result := database.GetPostgres().Create(&migration)
+	result := database.GetMysql().Create(&migration)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -146,7 +146,7 @@ func logMigration(name, fileName string) error {
 func getMigrationsByName(name string) ([]migrations.MigrationTable, error) {
 	var data []migrations.MigrationTable
 
-	db := database.GetPostgres()
+	db := database.GetMysql()
 	result := db.Where(&migrations.MigrationTable{Name: name}).Find(&data)
 	if result.Error != nil {
 		return nil, result.Error
@@ -158,7 +158,7 @@ func getMigrationsByName(name string) ([]migrations.MigrationTable, error) {
 func removeMigrationByName(name string) error {
 	var data *migrations.MigrationTable
 
-	db := database.GetPostgres()
+	db := database.GetMysql()
 	result := db.Where(&migrations.MigrationTable{Name: name}).First(&data)
 	if result.Error != nil {
 		return result.Error

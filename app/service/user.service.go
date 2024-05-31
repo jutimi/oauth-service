@@ -10,6 +10,7 @@ import (
 	"gin-boilerplate/package/database"
 	"gin-boilerplate/package/errors"
 	logger "gin-boilerplate/package/log"
+	"gin-boilerplate/utils"
 	"time"
 )
 
@@ -118,7 +119,7 @@ func (s *userService) Register(ctx context.Context, data *model.RegisterRequest)
 }
 
 func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*model.LogoutResponse, error) {
-	user := ctx.Value("User").(entity.User)
+	user := ctx.Value(utils.USER_CONTEXT_KEY).(entity.User)
 
 	// Find User OAuth
 	userOAuth, err := s.databaseSvc.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
