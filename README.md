@@ -11,6 +11,6 @@
 
 - Migration:
 
-  - `make migration-create NAME=...`: Create migration file
-  - `make migration-up`: Run migration
+  - `make migrate-create NAME=...`: Create migration file
+  - `make migrate-up`: Run migration
   - `make migrate-down`: Down migration
