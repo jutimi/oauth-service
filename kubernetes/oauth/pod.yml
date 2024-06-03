@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oauth-service-pod
+  labels:
+    name: oauth-service-pod
+    app: local-app
+spec:
+  containers:
+    - name: oauth-service
+      image:
+      ports:
+        - containerPort: 80

@@ -7,6 +7,6 @@ COPY . /app
 RUN go mod download
 RUN go build -o main .
 
-EXPOSE $PORT
+EXPOSE 3000
 
 CMD ["./main"]
