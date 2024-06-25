@@ -1,6 +1,16 @@
-database:
-  host: localhost
-  port: 3306
-  user: root
-  password: root
+mysql:
+  host: 127.0.0.1
+  port: 30543
+  user: postgres
+  password: 123456
   database: authentication
+
+postgres:
+  host: 127.0.0.1
+  port: 30543
+  user: postgres
+  password: 123456
+  database: authentication
+
+server:
+  port: 3000
