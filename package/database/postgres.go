@@ -12,7 +12,7 @@ import (
 var postgresDB *gorm.DB
 
 func InitPostgres() {
-	config := config.GetConfiguration().Database
+	config := config.GetConfiguration().PostgresDB
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai",

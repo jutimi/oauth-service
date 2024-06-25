@@ -81,6 +81,6 @@ func init() {
 	configFile := fmt.Sprintf("%s/config.yml", rootDir)
 
 	config.Init(configFile)
-	database.InitMysql()
+	database.InitPostgres()
 	logger.Init()
 }
