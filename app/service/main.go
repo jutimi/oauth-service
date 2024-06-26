@@ -2,7 +2,7 @@ package service
 
 import (
 	"gin-boilerplate/app/helper"
-	mysql_repository "gin-boilerplate/app/repository/mysql"
+	postgres_repository "gin-boilerplate/app/repository/postgres"
 )
 
 type ServiceCollections struct {
@@ -13,11 +13,10 @@ type ServiceCollections struct {
 func RegisterServices(
 	helpers helper.HelperCollections,
 
-	mysqlRepo mysql_repository.MysqlRepositoryCollections,
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) ServiceCollections {
-	databaseSvc := NewDatabaseService(mysqlRepo)
-	userSvc := NewUserService(helpers, databaseSvc)
-	oauthSvc := NewOAuthService(helpers, databaseSvc)
+	userSvc := NewUserService(helpers, postgresRepo)
+	oauthSvc := NewOAuthService(helpers, postgresRepo)
 
 	return ServiceCollections{
 		UserSvc:  userSvc,

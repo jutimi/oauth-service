@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"gin-boilerplate/app/model"
-	"gin-boilerplate/app/repository"
 )
 
 type UserService interface {
@@ -14,9 +13,4 @@ type UserService interface {
 
 type OAuthService interface {
 	RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error)
-}
-
-type DatabaseService interface {
-	repository.UserRepository
-	repository.OAuthRepository
 }

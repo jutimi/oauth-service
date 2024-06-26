@@ -6,28 +6,30 @@ import (
 	"gin-boilerplate/app/helper"
 	"gin-boilerplate/app/model"
 	"gin-boilerplate/app/repository"
+	postgres_repository "gin-boilerplate/app/repository/postgres"
 	"gin-boilerplate/package/errors"
 	"time"
 )
 
 type oAuthService struct {
-	helpers     helper.HelperCollections
-	databaseSvc DatabaseService
+	helpers      helper.HelperCollections
+	postgresRepo postgres_repository.PostgresRepositoryCollections
 }
 
 func NewOAuthService(
 	helpers helper.HelperCollections,
-	databaseSvc DatabaseService,
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) OAuthService {
 	return &oAuthService{
-		helpers:     helpers,
-		databaseSvc: databaseSvc,
+		helpers:      helpers,
+		postgresRepo: postgresRepo,
 	}
 }
 
 func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
+
 	// Check user oauth
-	userOAuth, err := s.databaseSvc.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	userOAuth, err := s.postgresRepo.PostgresOAuthRepo.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
 		Token: data.RefreshToken,
 	})
 	if err != nil || userOAuth.Status != entity.OAuthStatusActive {
@@ -39,7 +41,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 	}
 
 	// Check user exit
-	user, err := s.databaseSvc.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
 		ID: userOAuth.UserID,
 	})
 	if err != nil {

@@ -20,8 +20,9 @@ const (
 )
 
 const (
-	ErrCodeRequired        = 1
-	ErrCodeValidatorFormat = 2
+	ErrCodeValidatorRequired     = 1
+	ErrCodeValidatorFormat       = 2
+	ErrCodeValidatorVerifiedData = 3
 
 	ErrCodeUserNotFound = 10
 	ErrCodeUserExisted  = 11
@@ -34,12 +35,17 @@ const (
 )
 
 var messages = map[int]map[string]string{
-	ErrCodeRequired: {
+	// Validator
+	ErrCodeValidatorRequired: {
 		LangVN: "không được bỏ trống. Vui lòng kiểm tra lại",
 	},
 	ErrCodeValidatorFormat: {
 		LangVN: "không hợp lệ. Vui lòng kiểm tra lại",
 	},
+	ErrCodeValidatorVerifiedData: {
+		LangVN: "không chính xác. Vui lòng kiểm tra lại",
+	},
+
 	ErrCodeInternalServerError: {
 		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
 	},
@@ -111,7 +117,9 @@ func convertValidatorTag(tag string) int {
 	switch tag {
 	case _validator.EMAIL, _validator.PHONE_NUMBER:
 		return ErrCodeValidatorFormat
+	case _validator.EQUAL_FIELD:
+		return ErrCodeValidatorVerifiedData
 	default:
-		return ErrCodeRequired
+		return ErrCodeValidatorRequired
 	}
 }

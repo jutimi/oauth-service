@@ -202,6 +202,7 @@ func runMultipleMigrations(action string, db *gorm.DB) {
 
 		fmt.Println("Running migration:", file.Name())
 		runMigration(file.Name(), action, db)
+		fmt.Println("Finish migration:", file.Name())
 	}
 }
 
@@ -227,10 +228,12 @@ func runMigration(fileName, action string, db *gorm.DB) {
 		}
 
 		// Log migration
+		fmt.Println("Running migration:", fileName)
 		if err := logMigration(name, fileName); err != nil {
 			fmt.Printf("Error logging %s migration: %s \n", fileName, err.Error())
 			return
 		}
+		fmt.Println("Finish migration:", fileName)
 	case migrations.ACTION_DOWN:
 		if isPrerequisites {
 			break

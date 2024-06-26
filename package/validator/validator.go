@@ -10,6 +10,7 @@ const (
 	REQUIRED     = "required"
 	EMAIL        = "email"
 	PHONE_NUMBER = "phone_number"
+	EQUAL_FIELD  = "eqfield"
 )
 
 var validatePhoneNumber validator.Func = func(fl validator.FieldLevel) bool {

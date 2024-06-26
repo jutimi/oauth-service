@@ -7,6 +7,7 @@ import (
 	"gin-boilerplate/app/helper"
 	"gin-boilerplate/app/model"
 	"gin-boilerplate/app/repository"
+	postgres_repository "gin-boilerplate/app/repository/postgres"
 	"gin-boilerplate/package/database"
 	"gin-boilerplate/package/errors"
 	logger "gin-boilerplate/package/log"
@@ -15,23 +16,24 @@ import (
 )
 
 type userService struct {
-	helpers     helper.HelperCollections
-	databaseSvc DatabaseService
+	helpers      helper.HelperCollections
+	postgresRepo postgres_repository.PostgresRepositoryCollections
 }
 
 func NewUserService(
 	helpers helper.HelperCollections,
-	databaseSvc DatabaseService,
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) UserService {
+
 	return &userService{
-		helpers:     helpers,
-		databaseSvc: databaseSvc,
+		helpers:      helpers,
+		postgresRepo: postgresRepo,
 	}
 }
 
 func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*model.LoginResponse, error) {
 	// Check user exit
-	user, err := s.databaseSvc.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
 	})
@@ -62,7 +64,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 	userOAuth.Token = refreshToken
 	userOAuth.Status = entity.OAuthStatusActive
 	userOAuth.ExpireAt = time.Now().Add(time.Hour * 24 * 30).Unix()
-	if err := s.databaseSvc.CreateOAuth(ctx, tx, userOAuth); err != nil {
+	if err := s.postgresRepo.PostgresOAuthRepo.CreateOAuth(ctx, tx, userOAuth); err != nil {
 		logger.Println(logger.LogPrintln{
 			FileName:  "app/service/user.service.go",
 			FuncName:  "Login",
@@ -82,7 +84,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
 	// Check user exited
-	existedUser, err := s.databaseSvc.FindUsersByFilter(ctx, nil, &repository.FindUserByFilter{
+	existedUser, err := s.postgresRepo.PostgresUserRepo.FindUsersByFilter(ctx, nil, &repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
 	})
@@ -100,12 +102,12 @@ func (s *userService) Register(ctx context.Context, data *model.RegisterRequest)
 	}
 
 	// Create user
-	tx := database.BeginMysqlTransaction()
+	tx := database.BeginPostgresTransaction()
 	user := entity.NewUser()
 	user.PhoneNumber = &data.PhoneNumber
 	user.Email = &data.Email
 	user.Password = data.Password
-	if err := s.databaseSvc.CreateUser(ctx, tx, user); err != nil {
+	if err := s.postgresRepo.PostgresUserRepo.CreateUser(ctx, tx, user); err != nil {
 		logger.Println(logger.LogPrintln{
 			FileName:  "app/service/user.service.go",
 			FuncName:  "Register",
@@ -122,7 +124,7 @@ func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*m
 	user := ctx.Value(utils.USER_CONTEXT_KEY).(entity.User)
 
 	// Find User OAuth
-	userOAuth, err := s.databaseSvc.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	userOAuth, err := s.postgresRepo.PostgresOAuthRepo.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
 		UserID: user.ID,
 	})
 	if err != nil {
@@ -130,9 +132,9 @@ func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*m
 	}
 
 	// Deactivate User OAuth
-	tx := database.BeginMysqlTransaction()
+	tx := database.BeginPostgresTransaction()
 	userOAuth.Status = entity.OAuthStatusInactive
-	if err := s.databaseSvc.UpdateOAuth(ctx, tx, userOAuth); err != nil {
+	if err := s.postgresRepo.PostgresOAuthRepo.UpdateOAuth(ctx, tx, userOAuth); err != nil {
 		tx.Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}

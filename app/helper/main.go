@@ -1,7 +1,7 @@
 package helper
 
 import (
-	mysql_repository "gin-boilerplate/app/repository/mysql"
+	postgres_repository "gin-boilerplate/app/repository/postgres"
 )
 
 type HelperCollections struct {
@@ -9,7 +9,7 @@ type HelperCollections struct {
 }
 
 func RegisterHelpers(
-	mysqlRepo mysql_repository.MysqlRepositoryCollections,
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) HelperCollections {
 	oauthHelper := NewOauthHelper()
 

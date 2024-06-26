@@ -11,6 +11,7 @@
 
 - Migration:
 
-  - `make migrate-create NAME=...`: Create migration file
-  - `make migrate-up`: Run migration
-  - `make migrate-down`: Down migration
+  - `make migrate-create FILE=...`: Create migration file (Ex: make migrate-create FILE=create_table_user)
+  - `make migrate-up`: Run all migrations
+  - `make migrate-up FILE=...`: Run specific migration
+  - `make migrate-down`: Down all migrations
