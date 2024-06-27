@@ -33,6 +33,7 @@ func main() {
 
 	// Register validator
 	v := binding.Validator.Engine().(*validator.Validate)
+	v.SetTagName("validate")
 	_validator.RegisterCustomValidators(v)
 
 	// Register repositories

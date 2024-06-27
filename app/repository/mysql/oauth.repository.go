@@ -24,7 +24,7 @@ func (r *oAuthRepository) CreateOAuth(
 	tx *gorm.DB,
 	oauth *entity.Oauth,
 ) error {
-	return r.db.Create(&oauth).Error
+	return r.db.WithContext(ctx).Create(&oauth).Error
 }
 
 func (r *oAuthRepository) UpdateOAuth(
@@ -34,7 +34,7 @@ func (r *oAuthRepository) UpdateOAuth(
 ) error {
 	oauth.UpdatedAt = time.Now().Unix()
 
-	return r.db.Save(&oauth).Error
+	return r.db.WithContext(ctx).Save(&oauth).Error
 }
 
 func (r *oAuthRepository) FindOAuthByFilter(
@@ -43,6 +43,6 @@ func (r *oAuthRepository) FindOAuthByFilter(
 	filter *repository.FindOAuthByFilter,
 ) (*entity.Oauth, error) {
 	var data *entity.Oauth
-	err := r.db.First(&data).Error
+	err := r.db.WithContext(ctx).First(&data).Error
 	return data, err
 }

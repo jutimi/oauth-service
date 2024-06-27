@@ -27,7 +27,8 @@ const (
 	ErrCodeUserNotFound = 10
 	ErrCodeUserExisted  = 11
 
-	ErrCodeTokenExpired = 20
+	ErrCodeTokenExpired      = 20
+	ErrCodeIncorrectPassword = 21
 
 	ErrCodeInternalServerError = 500
 	ErrCodeTimeout             = 408
@@ -67,6 +68,9 @@ var messages = map[int]map[string]string{
 	// OAuth Error
 	ErrCodeTokenExpired: {
 		LangVN: "Phiên làm việc đã hết hạn. Vui lòng đăng nhâp lại",
+	},
+	ErrCodeIncorrectPassword: {
+		LangVN: "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại",
 	},
 }
 

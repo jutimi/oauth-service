@@ -12,3 +12,13 @@ const (
 	GIN_CONTEXT_KEY  key = "GIN"
 	USER_CONTEXT_KEY key = "USER"
 )
+
+const (
+	USER_ACCESS_TOKEN_IAT  = 15 * 60           // 15 minutes
+	USER_REFRESH_TOKEN_IAT = 30 * 24 * 60 * 60 // 30 days
+)
+
+const (
+	DEBUG_MODE   = "debug"
+	RELEASE_MODE = "release"
+)

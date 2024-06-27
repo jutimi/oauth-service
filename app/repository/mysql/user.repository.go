@@ -24,7 +24,7 @@ func (r *userRepository) CreateUser(
 	tx *gorm.DB,
 	user *entity.User,
 ) error {
-	return r.db.Create(&user).Error
+	return r.db.WithContext(ctx).Create(&user).Error
 }
 
 func (r *userRepository) UpdateUser(
@@ -34,7 +34,7 @@ func (r *userRepository) UpdateUser(
 ) error {
 	user.UpdatedAt = time.Now().Unix()
 
-	return r.db.Save(&user).Error
+	return r.db.WithContext(ctx).Save(&user).Error
 }
 
 func (r *userRepository) DeleteUser(
@@ -42,7 +42,7 @@ func (r *userRepository) DeleteUser(
 	tx *gorm.DB,
 	user *entity.User,
 ) error {
-	return r.db.Delete(&user).Error
+	return r.db.WithContext(ctx).Delete(&user).Error
 }
 
 func (r *userRepository) BulkCreateUser(
@@ -50,7 +50,7 @@ func (r *userRepository) BulkCreateUser(
 	tx *gorm.DB,
 	users []entity.User,
 ) error {
-	return r.db.Create(&users).Error
+	return r.db.WithContext(ctx).Create(&users).Error
 }
 
 func (r *userRepository) FindUserByFilter(
@@ -59,7 +59,7 @@ func (r *userRepository) FindUserByFilter(
 	filter *repository.FindUserByFilter,
 ) (*entity.User, error) {
 	var user *entity.User
-	err := r.db.First(&user).Error
+	err := r.db.WithContext(ctx).First(&user).Error
 	return user, err
 }
 
@@ -69,6 +69,6 @@ func (r *userRepository) FindUsersByFilter(
 	filer *repository.FindUserByFilter,
 ) ([]entity.User, error) {
 	var user []entity.User
-	err := r.db.Find(&user).Error
+	err := r.db.WithContext(ctx).Find(&user).Error
 	return user, err
 }

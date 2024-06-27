@@ -27,6 +27,7 @@ type Oauth struct {
 	ExpireAt  int64     `json:"expire_at" gorm:"type:integer;not null"`
 	CreatedAt int64     `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt int64     `json:"updated_at" gorm:"autoUpdateTime:milli"`
+	LoginAt   int64     `json:"login_at" gorm:"type:integer"`
 }
 
 func NewOAuth() *Oauth {

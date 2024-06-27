@@ -42,7 +42,7 @@ func GenerateToken(payload interface{}, key string, expireTime int) (string, err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(key)
+	ss, err := token.SignedString([]byte(key))
 	if err != nil {
 		return "", err
 	}

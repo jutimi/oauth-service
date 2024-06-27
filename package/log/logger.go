@@ -57,5 +57,5 @@ func Println(params LogPrintln) {
 			paramArr = append(paramArr, fmt.Sprintf("%v", v.Field(i).Interface()))
 		}
 	}
-	GetLogger().Printf("%s \n", strings.Join(paramArr, " - "))
+	GetLogger().Infof("%s \n", strings.Join(paramArr, " - "))
 }

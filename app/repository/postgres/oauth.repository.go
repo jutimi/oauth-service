@@ -25,10 +25,10 @@ func (r *oAuthRepository) CreateOAuth(
 	oauth *entity.Oauth,
 ) error {
 	if tx != nil {
-		return tx.Create(&oauth).Error
+		return tx.WithContext(ctx).Create(&oauth).Error
 	}
 
-	return r.db.Create(&oauth).Error
+	return r.db.WithContext(ctx).Create(&oauth).Error
 }
 
 func (r *oAuthRepository) UpdateOAuth(
@@ -39,10 +39,10 @@ func (r *oAuthRepository) UpdateOAuth(
 	oauth.UpdatedAt = time.Now().Unix()
 
 	if tx != nil {
-		return tx.Save(&oauth).Error
+		return tx.WithContext(ctx).Save(&oauth).Error
 	}
 
-	return r.db.Save(&oauth).Error
+	return r.db.WithContext(ctx).Save(&oauth).Error
 }
 
 func (r *oAuthRepository) FindOAuthByFilter(
@@ -52,11 +52,21 @@ func (r *oAuthRepository) FindOAuthByFilter(
 ) (*entity.Oauth, error) {
 	var data *entity.Oauth
 
+	query := r.db.WithContext(ctx)
 	if tx != nil {
-		err := tx.First(&data).Error
-		return data, err
+		query = tx.WithContext(ctx)
 	}
 
-	err := r.db.First(&data).Error
+	if filter.Token != nil {
+		query = query.Where("token = ?", *filter.Token)
+	}
+	if filter.UserID != nil {
+		query = query.Scopes(findByUserId(*filter.UserID))
+	}
+	if filter.PlatForm != nil {
+		query = query.Where("platform = ?", *filter.PlatForm)
+	}
+
+	err := query.First(&data).Error
 	return data, err
 }

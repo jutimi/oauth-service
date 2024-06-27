@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"gin-boilerplate/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,6 +26,19 @@ func NewUser() *User {
 	}
 }
 
-func (User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
+}
+
+func (u *User) BeforeSave(tx *gorm.DB) error {
+	if u.Password != "" {
+		hash, err := utils.HashPassword(u.Password)
+		if err != nil {
+			return err
+		}
+
+		u.Password = hash
+	}
+
+	return nil
 }

@@ -208,15 +208,11 @@ func runMultipleMigrations(action string, db *gorm.DB) {
 
 func runMigration(fileName, action string, db *gorm.DB) {
 	name := generateName(fileName)
-	isPrerequisites := strings.Contains(fileName, "prerequisites")
+	if strings.Contains(fileName, "prerequisites") {
+		return
+	}
 
-	switch action {
-	case migrations.ACTION_UP:
-		// Check migration history
-		if isPrerequisites {
-			break
-		}
-
+	if action == migrations.ACTION_UP {
 		migrationsData, err := getMigrationsByName(name)
 		if err != nil {
 			fmt.Printf("Error getting migrations %s by name: %s \n", fileName, err.Error())
@@ -226,7 +222,18 @@ func runMigration(fileName, action string, db *gorm.DB) {
 			fmt.Printf("Migration %s already run \n", fileName)
 			return
 		}
+	}
 
+	// Run migration file
+	funcName := generateFuncName(fileName, action)
+	if err := migrations.Run(funcName, action, db); err != nil {
+		fmt.Printf("Error running migrations %s: %s \n", fileName, err.Error())
+		return
+	}
+
+	// Handle logging in database
+	switch action {
+	case migrations.ACTION_UP:
 		// Log migration
 		fmt.Println("Running migration:", fileName)
 		if err := logMigration(name, fileName); err != nil {
@@ -235,19 +242,8 @@ func runMigration(fileName, action string, db *gorm.DB) {
 		}
 		fmt.Println("Finish migration:", fileName)
 	case migrations.ACTION_DOWN:
-		if isPrerequisites {
-			break
-		}
-
 		removeMigrationByName(name)
 	default:
 		break
-	}
-
-	// Run migration file
-	funcName := generateFuncName(fileName, action)
-	if err := migrations.Run(funcName, action, db); err != nil {
-		fmt.Printf("Error running migrations %s: %s \n", fileName, err.Error())
-		return
 	}
 }

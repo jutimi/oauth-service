@@ -31,17 +31,17 @@ func (h *oAuthHandler) refreshToken(c *gin.Context) {
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(resErr))
-
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 
 	res, err := h.services.OAuthSvc.RefreshToken(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
+		return
 	}
 
 	c.JSON(http.StatusOK, utils.FormatSuccessResponse(res))
