@@ -8,11 +8,13 @@ import (
 	postgres_repository "gin-boilerplate/app/repository/postgres"
 	"gin-boilerplate/app/service"
 	"gin-boilerplate/config"
+	user_grpc "gin-boilerplate/gRPC/user"
 	"gin-boilerplate/package/database"
 	logger "gin-boilerplate/package/log"
 	_validator "gin-boilerplate/package/validator"
 	"gin-boilerplate/utils"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,12 +24,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"google.golang.org/grpc"
 )
 
 func main() {
-	conf := config.GetConfiguration().Server
+	conf := config.GetConfiguration()
 
-	gin.SetMode(conf.Mode)
+	// Register repositories
+	postgresDB := database.GetPostgres()
+	// mysqlRepo := mysql_repository.RegisterMysqlRepositories(db)
+	postgresRepo := postgres_repository.RegisterPostgresRepositories(postgresDB)
+
+	// Register Others
+	helpers := helper.RegisterHelpers(postgresRepo)
+	services := service.RegisterServices(helpers, postgresRepo)
+
+	// Run GRPC Server
+	go startGRPCServer(conf, postgresRepo)
+
+	// Run gin server
+	gin.SetMode(conf.Server.Mode)
 	router := gin.Default()
 	router.Use(gin.LoggerWithWriter(logger.GetLogger().Writer()))
 
@@ -35,14 +51,6 @@ func main() {
 	v := binding.Validator.Engine().(*validator.Validate)
 	v.SetTagName("validate")
 	_validator.RegisterCustomValidators(v)
-
-	// Register repositories
-	postgresDB := database.GetPostgres()
-	// mysqlRepo := mysql_repository.RegisterMysqlRepositories(db)
-	postgresRepo := postgres_repository.RegisterPostgresRepositories(postgresDB)
-
-	helpers := helper.RegisterHelpers(postgresRepo)
-	services := service.RegisterServices(helpers, postgresRepo)
 
 	// Register controllers
 	router.GET("/health-check", func(c *gin.Context) {
@@ -52,7 +60,7 @@ func main() {
 
 	// Start server
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", conf.Port),
+		Addr:    fmt.Sprintf(":%d", conf.Server.Port),
 		Handler: router,
 	}
 
@@ -95,4 +103,33 @@ func init() {
 	config.Init(configFile)
 	database.InitPostgres()
 	logger.Init()
+}
+
+func startGRPCServer(
+	conf *config.Configuration,
+
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
+) {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPC.Port))
+	if err != nil {
+		panic(err)
+	}
+	opts := []grpc.ServerOption{}
+	grpcServer := grpc.NewServer(opts...)
+
+	// Register serever
+	user_grpc.RegisterUserRouteServer(grpcServer, user_grpc.NewUserServer(postgresRepo))
+
+	logger.Println(logger.LogPrintln{
+		FileName:  "main.go",
+		FuncName:  "main",
+		TraceData: "",
+		Msg: fmt.Sprintf(
+			"GRPC Server Running Port - %d",
+			conf.GRPC.Port,
+		),
+	})
+	if err := grpcServer.Serve(lis); err != nil {
+		panic(err)
+	}
 }

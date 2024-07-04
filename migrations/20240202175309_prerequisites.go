@@ -11,9 +11,10 @@ func init() {
 
 func upPrerequisites(db *gorm.DB) error {
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
-	if !db.Migrator().HasTable(&MigrationTable{}) {
-		db.Migrator().CreateTable(&MigrationTable{})
+	if err := db.Migrator().CreateTable(&MigrationTable{}); err != nil {
+		return err
 	}
+
 	return nil
 }
 

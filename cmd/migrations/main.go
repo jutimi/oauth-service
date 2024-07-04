@@ -208,11 +208,9 @@ func runMultipleMigrations(action string, db *gorm.DB) {
 
 func runMigration(fileName, action string, db *gorm.DB) {
 	name := generateName(fileName)
-	if strings.Contains(fileName, "prerequisites") {
-		return
-	}
 
-	if action == migrations.ACTION_UP {
+	// Validate migration
+	if action == migrations.ACTION_UP && !strings.Contains(fileName, "prerequisites") {
 		migrationsData, err := getMigrationsByName(name)
 		if err != nil {
 			fmt.Printf("Error getting migrations %s by name: %s \n", fileName, err.Error())

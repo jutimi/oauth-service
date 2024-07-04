@@ -9,6 +9,7 @@ const (
 	ACTION_CREATE = "create"
 	ACTION_UP     = "up"
 	ACTION_DOWN   = "down"
+	ACTION_UP_ALL = "up_all"
 )
 
 type Migration struct {
