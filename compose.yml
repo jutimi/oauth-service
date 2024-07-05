@@ -2,6 +2,8 @@ version: "3.8"
 services:
   postgres:
     image: postgres
+    networks:
+      - local-app
     environment:
       POSTGRES_PASSWORD: 123456
     volumes:
@@ -10,6 +12,8 @@ services:
       - "5432:5432"
   phpmyadmin:
     image: dpage/pgadmin4
+    networks:
+      - local-app
     depends_on:
       - postgres
     ports:
@@ -19,6 +23,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: root@gmail.com
   redis:
     image: redis
+    networks:
+      - local-app
     ports:
       - "6380:6379"
   kafka:
@@ -34,6 +40,13 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+  oauth-server:
+    image: duongsonn/local-app-oauth-server:v1
+    networks:
+      - local-app
+    ports:
+      - "30:3000"
+      - "40:4000"
 
 networks:
   local-app:

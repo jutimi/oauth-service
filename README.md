@@ -2,6 +2,9 @@
 
 ## Prerequisites
 
+- Install make
+- Install docker/docker compose
+
 ## CMD
 
 - Server
@@ -15,3 +18,5 @@
   - `make migrate-up`: Run all migrations
   - `make migrate-up FILE=...`: Run specific migration
   - `make migrate-down`: Down all migrations
+
+## Pre Deploy
