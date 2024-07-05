@@ -2,11 +2,11 @@ package api
 
 import (
 	"context"
-	"gin-boilerplate/app/model"
-	"gin-boilerplate/app/service"
-	_errors "gin-boilerplate/package/errors"
-	"gin-boilerplate/utils"
 	"net/http"
+	"oauth-server/app/model"
+	"oauth-server/app/service"
+	_errors "oauth-server/package/errors"
+	"oauth-server/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"

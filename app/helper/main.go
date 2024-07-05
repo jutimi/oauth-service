@@ -1,7 +1,7 @@
 package helper
 
 import (
-	postgres_repository "gin-boilerplate/app/repository/postgres"
+	postgres_repository "oauth-server/app/repository/postgres"
 )
 
 type HelperCollections struct {

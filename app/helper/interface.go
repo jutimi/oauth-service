@@ -1,6 +1,6 @@
 package helper
 
-import "gin-boilerplate/app/entity"
+import "oauth-server/app/entity"
 
 type OauthHelper interface {
 	GenerateAccessToken(user entity.User) (string, error)

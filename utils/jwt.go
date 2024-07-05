@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"gin-boilerplate/config"
+	"oauth-server/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

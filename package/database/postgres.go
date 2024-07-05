@@ -2,9 +2,9 @@ package database
 
 import (
 	"fmt"
-	"gin-boilerplate/config"
-	"gin-boilerplate/utils"
 	"log"
+	"oauth-server/config"
+	"oauth-server/utils"
 	"os"
 	"time"
 

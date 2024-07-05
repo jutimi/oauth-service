@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gin-boilerplate/config"
-	"gin-boilerplate/migrations"
-	"gin-boilerplate/package/database"
-	"gin-boilerplate/utils"
+	"oauth-server/config"
+	"oauth-server/migrations"
+	"oauth-server/package/database"
+	"oauth-server/utils"
 	"os"
 	"regexp"
 	"strings"

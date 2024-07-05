@@ -1,7 +1,7 @@
 package postgres_repository
 
 import (
-	"gin-boilerplate/app/repository"
+	"oauth-server/app/repository"
 
 	"gorm.io/gorm"
 )

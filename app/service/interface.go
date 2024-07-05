@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"gin-boilerplate/app/model"
+	"oauth-server/app/model"
 )
 
 type UserService interface {

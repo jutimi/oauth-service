@@ -2,10 +2,10 @@ package helper
 
 import (
 	"fmt"
-	"gin-boilerplate/app/entity"
-	"gin-boilerplate/config"
-	logger "gin-boilerplate/package/log"
-	"gin-boilerplate/utils"
+	"oauth-server/app/entity"
+	"oauth-server/config"
+	logger "oauth-server/package/log"
+	"oauth-server/utils"
 )
 
 type oauthHelper struct {

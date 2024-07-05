@@ -2,9 +2,9 @@ package user_grpc
 
 import (
 	context "context"
-	"gin-boilerplate/app/repository"
-	postgres_repository "gin-boilerplate/app/repository/postgres"
-	"gin-boilerplate/utils"
+	"oauth-server/app/repository"
+	postgres_repository "oauth-server/app/repository/postgres"
+	"oauth-server/utils"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/status"

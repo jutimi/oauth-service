@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "gin-boilerplate/grpc/user/user_grpc";
+option go_package = "oauth-server/grpc/user/user_grpc";
 
 package user_grpc;
 

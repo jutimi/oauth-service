@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"gin-boilerplate/app/entity"
+	"oauth-server/app/entity"
 
 	"gorm.io/gorm"
 )

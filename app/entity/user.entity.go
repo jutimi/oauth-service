@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"gin-boilerplate/utils"
+	"oauth-server/utils"
 	"time"
 
 	"github.com/google/uuid"

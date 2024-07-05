@@ -2,8 +2,8 @@ package postgres_repository
 
 import (
 	"context"
-	"gin-boilerplate/app/entity"
-	"gin-boilerplate/app/repository"
+	"oauth-server/app/entity"
+	"oauth-server/app/repository"
 	"time"
 
 	"gorm.io/gorm"

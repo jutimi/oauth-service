@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"gin-boilerplate/app/controller/api"
-	"gin-boilerplate/app/service"
+	"oauth-server/app/controller/api"
+	"oauth-server/app/service"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"gin-boilerplate/app/entity"
-	"gin-boilerplate/app/helper"
-	"gin-boilerplate/app/model"
-	"gin-boilerplate/app/repository"
-	postgres_repository "gin-boilerplate/app/repository/postgres"
-	"gin-boilerplate/package/errors"
+	"oauth-server/app/entity"
+	"oauth-server/app/helper"
+	"oauth-server/app/model"
+	"oauth-server/app/repository"
+	postgres_repository "oauth-server/app/repository/postgres"
+	"oauth-server/package/errors"
 	"time"
 )
 

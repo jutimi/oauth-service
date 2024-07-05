@@ -1,8 +1,8 @@
 package service
 
 import (
-	"gin-boilerplate/app/helper"
-	postgres_repository "gin-boilerplate/app/repository/postgres"
+	"oauth-server/app/helper"
+	postgres_repository "oauth-server/app/repository/postgres"
 )
 
 type ServiceCollections struct {

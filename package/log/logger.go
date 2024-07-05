@@ -2,8 +2,8 @@ package logger
 
 import (
 	"fmt"
-	"gin-boilerplate/utils"
 	"io"
+	"oauth-server/utils"
 	"os"
 	"reflect"
 	"strings"

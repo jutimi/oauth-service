@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"gin-boilerplate/config"
 	"log"
+	"oauth-server/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
