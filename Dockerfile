@@ -3,15 +3,19 @@ FROM golang as builder
 
 WORKDIR /app
 
-COPY . /app
-
+COPY go.mod go.sum ./
 RUN go mod download
-RUN go build -o main .
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
 
 # Copy the binary file to the image
 FROM alpine:latest
 
-WORKDIR /root/
+WORKDIR /app
+
 COPY --from=builder /app/main .
+COPY --from=builder /app/config.yml .
 
 CMD ["./main"]

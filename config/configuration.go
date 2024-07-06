@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -19,12 +20,17 @@ type Configuration struct {
 func Init(filePath string) {
 	var configuration *Configuration
 
+	// Check file exist base on filepath
+	if _, err := os.Stat(filePath); err != nil {
+		log.Fatalf("File Config Not Found: %s", err.Error())
+	}
+
 	viper.SetConfigFile(filePath)
 	viper.SetConfigType("yaml")
 	viper.ReadInConfig()
 
 	if err := viper.Unmarshal(&configuration); err != nil {
-		log.Fatalf("error_decode_config: %v", err)
+		log.Fatalf("Error Decode Config: %s", err.Error())
 	}
 
 	if configuration.Server.Port == 0 {
@@ -32,6 +38,7 @@ func Init(filePath string) {
 	}
 
 	config = configuration
+	log.Println("Init Config Success!")
 }
 
 func GetConfiguration() *Configuration {
