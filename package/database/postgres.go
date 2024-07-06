@@ -19,8 +19,6 @@ func InitPostgres() {
 	conf := config.GetConfiguration().PostgresDB
 	serverConf := config.GetConfiguration().Server
 
-	log.Println("DB Host: ", conf.Host)
-
 	// DB logging config
 	logLevel := logger.Info
 	if serverConf.Mode == utils.RELEASE_MODE {
@@ -59,6 +57,8 @@ func InitPostgres() {
 	sqlDB.SetConnMaxIdleTime(time.Hour)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
+
+	log.Println("Init Postgres Success!")
 
 	postgresDB = conn
 }

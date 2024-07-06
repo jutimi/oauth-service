@@ -17,5 +17,7 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 COPY --from=builder /app/config.yml .
+COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/logs ./logs
 
 CMD ["./main"]
