@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"oauth-server/app/entity"
 	"oauth-server/app/helper"
 	"oauth-server/app/model"
@@ -10,7 +9,6 @@ import (
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/package/database"
 	"oauth-server/package/errors"
-	logger "oauth-server/package/log"
 	"oauth-server/utils"
 	"time"
 
@@ -42,12 +40,6 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 		Email:       &data.Email,
 	})
 	if err != nil {
-		logger.Println(logger.LogPrintln{
-			FileName:  "app/service/user.service.go",
-			FuncName:  "Login",
-			TraceData: fmt.Sprintf("%s/%s", data.Email, data.PhoneNumber),
-			Msg:       "databaseSvc FindUserByFilter - " + err.Error(),
-		})
 		return nil, errors.New(errors.ErrCodeUserNotFound)
 	}
 	if err := utils.CheckPasswordHash(data.Password, user.Password); err != nil {
@@ -79,12 +71,6 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 	userOAuth.ExpireAt = time.Now().Add(utils.USER_REFRESH_TOKEN_IAT * time.Second).Unix()
 	userOAuth.LoginAt = time.Now().Unix()
 	if err := s.postgresRepo.PostgresOAuthRepo.UpdateOAuth(ctx, tx, userOAuth); err != nil {
-		logger.Println(logger.LogPrintln{
-			FileName:  "app/service/user.service.go",
-			FuncName:  "Login",
-			TraceData: fmt.Sprintf("%s/%s", data.Email, data.PhoneNumber),
-			Msg:       "GenerateRefreshToken - " + err.Error(),
-		})
 		tx.WithContext(ctx).Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
@@ -103,12 +89,6 @@ func (s *userService) Register(ctx context.Context, data *model.RegisterRequest)
 		Email:       &data.Email,
 	})
 	if err != nil {
-		logger.Println(logger.LogPrintln{
-			FileName:  "app/service/user.service.go",
-			FuncName:  "Register",
-			TraceData: fmt.Sprintf("%s/%s", data.Email, data.PhoneNumber),
-			Msg:       "databaseSvc FindUsersByFilter - " + err.Error(),
-		})
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 	if len(existedUser) > 0 {

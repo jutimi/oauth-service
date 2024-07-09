@@ -52,19 +52,19 @@ func (r *oAuthRepository) FindOAuthByFilter(
 ) (*entity.Oauth, error) {
 	var data *entity.Oauth
 
-	query := r.db.WithContext(ctx)
+	query := r.db.WithContext(ctx).Debug()
 	if tx != nil {
-		query = tx.WithContext(ctx)
+		query = tx.WithContext(ctx).Debug()
 	}
 
 	if filter.Token != nil {
-		query = query.Where("token = ?", *filter.Token)
+		query = query.Scopes(findByText(*filter.Token, "token"))
 	}
 	if filter.UserID != nil {
-		query = query.Scopes(findByUserId(*filter.UserID))
+		query = query.Scopes(findById(*filter.UserID, "user_id"))
 	}
 	if filter.PlatForm != nil {
-		query = query.Where("platform = ?", *filter.PlatForm)
+		query = query.Scopes(findByText(*filter.PlatForm, "platform"))
 	}
 
 	err := query.First(&data).Error
