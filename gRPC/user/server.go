@@ -30,7 +30,7 @@ func (s *userServer) GetUserById(ctx context.Context, data *GetUserByIdParams) (
 		return nil, status.Error(status.Code(err), err.Error())
 	}
 
-	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
 		ID: &userId,
 	})
 	if err != nil {
@@ -53,7 +53,7 @@ func (s *userServer) GetUsersByFilter(ctx context.Context, data *GetUserByFilter
 		return nil, status.Error(status.Code(err), err.Error())
 	}
 
-	users, err := s.postgresRepo.PostgresUserRepo.FindUsersByFilter(ctx, nil, filter)
+	users, err := s.postgresRepo.UserRepo.FindByFilter(ctx, nil, filter)
 	if err != nil {
 		return nil, status.Error(status.Code(err), err.Error())
 	}
@@ -77,7 +77,7 @@ func (s *userServer) GetUserByFilter(ctx context.Context, data *GetUserByFilterP
 		return nil, status.Error(status.Code(err), err.Error())
 	}
 
-	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, filter)
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, filter)
 	if err != nil {
 		return nil, status.Error(status.Code(err), err.Error())
 	}

@@ -29,7 +29,7 @@ func NewOAuthService(
 func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
 
 	// Check user oauth
-	userOAuth, err := s.postgresRepo.PostgresOAuthRepo.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	userOAuth, err := s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
 		Token: &data.RefreshToken,
 	})
 
@@ -42,7 +42,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 	}
 
 	// Check user exit
-	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
 		ID: &userOAuth.UserID,
 	})
 	if err != nil {

@@ -7,16 +7,14 @@ import (
 )
 
 type PostgresRepositoryCollections struct {
-	PostgresUserRepo  repository.UserRepository
-	PostgresOAuthRepo repository.OAuthRepository
+	UserRepo  repository.UserRepository
+	OAuthRepo repository.OAuthRepository
 }
 
 func RegisterPostgresRepositories(db *gorm.DB) PostgresRepositoryCollections {
-	postgresUserRepo := NewPostgresUserRepository(db)
-	postgresOAuthRepo := NewPostgresOAuthRepository(db)
 
 	return PostgresRepositoryCollections{
-		PostgresUserRepo:  postgresUserRepo,
-		PostgresOAuthRepo: postgresOAuthRepo,
+		UserRepo:  NewUserRepository(db),
+		OAuthRepo: NewOAuthRepository(db),
 	}
 }

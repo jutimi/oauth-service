@@ -13,13 +13,13 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresUserRepository(db *gorm.DB) repository.UserRepository {
+func NewUserRepository(db *gorm.DB) repository.UserRepository {
 	return &userRepository{
 		db,
 	}
 }
 
-func (r *userRepository) CreateUser(
+func (r *userRepository) Create(
 	ctx context.Context,
 	tx *gorm.DB,
 	user *entity.User,
@@ -31,7 +31,7 @@ func (r *userRepository) CreateUser(
 	return r.db.WithContext(ctx).Create(&user).Error
 }
 
-func (r *userRepository) UpdateUser(
+func (r *userRepository) Update(
 	ctx context.Context,
 	tx *gorm.DB,
 	user *entity.User,
@@ -45,7 +45,7 @@ func (r *userRepository) UpdateUser(
 	return r.db.WithContext(ctx).Save(&user).Error
 }
 
-func (r *userRepository) DeleteUser(
+func (r *userRepository) Delete(
 	ctx context.Context,
 	tx *gorm.DB,
 	user *entity.User,
@@ -57,7 +57,7 @@ func (r *userRepository) DeleteUser(
 	return r.db.WithContext(ctx).Delete(&user).Error
 }
 
-func (r *userRepository) BulkCreateUser(
+func (r *userRepository) BulkCreate(
 	ctx context.Context,
 	tx *gorm.DB,
 	users []entity.User,
@@ -69,7 +69,7 @@ func (r *userRepository) BulkCreateUser(
 	return r.db.WithContext(ctx).Create(&users).Error
 }
 
-func (r *userRepository) FindUserByFilter(
+func (r *userRepository) FindOneByFilter(
 	ctx context.Context,
 	tx *gorm.DB,
 	filter *repository.FindUserByFilter,
@@ -81,7 +81,7 @@ func (r *userRepository) FindUserByFilter(
 	return data, err
 }
 
-func (r *userRepository) FindUsersByFilter(
+func (r *userRepository) FindByFilter(
 	ctx context.Context,
 	tx *gorm.DB,
 	filer *repository.FindUserByFilter,

@@ -13,13 +13,13 @@ type oAuthRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresOAuthRepository(db *gorm.DB) repository.OAuthRepository {
+func NewOAuthRepository(db *gorm.DB) repository.OAuthRepository {
 	return &oAuthRepository{
 		db,
 	}
 }
 
-func (r *oAuthRepository) CreateOAuth(
+func (r *oAuthRepository) Create(
 	ctx context.Context,
 	tx *gorm.DB,
 	oauth *entity.Oauth,
@@ -31,7 +31,7 @@ func (r *oAuthRepository) CreateOAuth(
 	return r.db.WithContext(ctx).Create(&oauth).Error
 }
 
-func (r *oAuthRepository) UpdateOAuth(
+func (r *oAuthRepository) Update(
 	ctx context.Context,
 	tx *gorm.DB,
 	oauth *entity.Oauth,
@@ -45,7 +45,7 @@ func (r *oAuthRepository) UpdateOAuth(
 	return r.db.WithContext(ctx).Save(&oauth).Error
 }
 
-func (r *oAuthRepository) FindOAuthByFilter(
+func (r *oAuthRepository) FindOneByFilter(
 	ctx context.Context,
 	tx *gorm.DB,
 	filter *repository.FindOAuthByFilter,

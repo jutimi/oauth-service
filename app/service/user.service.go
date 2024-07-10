@@ -35,7 +35,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 	var userOAuth *entity.Oauth
 
 	// Check user exit
-	user, err := s.postgresRepo.PostgresUserRepo.FindUserByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
 		PhoneNumber: &data.PhoneNumber,
 		Email:       &data.Email,
 	})
@@ -58,7 +58,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 
 	// Create User OAuth
 	tx := database.BeginPostgresTransaction()
-	userOAuth, err = s.postgresRepo.PostgresOAuthRepo.FindOAuthByFilter(ctx, tx, &repository.FindOAuthByFilter{
+	userOAuth, err = s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, tx, &repository.FindOAuthByFilter{
 		UserID: &user.ID,
 	})
 	if err == gorm.ErrRecordNotFound {
@@ -70,7 +70,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 	userOAuth.Token = refreshToken
 	userOAuth.ExpireAt = time.Now().Add(utils.USER_REFRESH_TOKEN_IAT * time.Second).Unix()
 	userOAuth.LoginAt = time.Now().Unix()
-	if err := s.postgresRepo.PostgresOAuthRepo.UpdateOAuth(ctx, tx, userOAuth); err != nil {
+	if err := s.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
 		tx.WithContext(ctx).Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
@@ -84,7 +84,7 @@ func (s *userService) Login(ctx context.Context, data *model.LoginRequest) (*mod
 
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
 	// Check user exited
-	existedUser, err := s.postgresRepo.PostgresUserRepo.FindUsersByFilter(ctx, nil, &repository.FindUserByFilter{
+	existedUser, err := s.postgresRepo.UserRepo.FindByFilter(ctx, nil, &repository.FindUserByFilter{
 		PhoneNumber: &data.PhoneNumber,
 		Email:       &data.Email,
 	})
@@ -101,7 +101,7 @@ func (s *userService) Register(ctx context.Context, data *model.RegisterRequest)
 	user.PhoneNumber = &data.PhoneNumber
 	user.Email = &data.Email
 	user.Password = data.Password
-	if err := s.postgresRepo.PostgresUserRepo.CreateUser(ctx, tx, user); err != nil {
+	if err := s.postgresRepo.UserRepo.Create(ctx, tx, user); err != nil {
 		tx.WithContext(ctx).Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
@@ -114,7 +114,7 @@ func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*m
 	user := ctx.Value(utils.USER_CONTEXT_KEY).(entity.User)
 
 	// Find User OAuth
-	userOAuth, err := s.postgresRepo.PostgresOAuthRepo.FindOAuthByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	userOAuth, err := s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
 		UserID: &user.ID,
 	})
 	if err != nil {
@@ -124,7 +124,7 @@ func (s *userService) Logout(ctx context.Context, data *model.LogoutRequest) (*m
 	// Deactivate User OAuth
 	tx := database.BeginPostgresTransaction()
 	userOAuth.Status = entity.OAuthStatusInactive
-	if err := s.postgresRepo.PostgresOAuthRepo.UpdateOAuth(ctx, tx, userOAuth); err != nil {
+	if err := s.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
 		tx.WithContext(ctx).Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
