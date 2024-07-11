@@ -1,0 +1,25 @@
+mysql:
+  host: ${MYSQL_HOST}
+  port: ${MYSQL_PORT}
+  user: ${MYSQL_USER}
+  password: ${MYSQL_PASSWORD}
+  database: ${MYSQL_DATABASE}
+
+postgres:
+  host: ${POSTGRES_HOST}
+  port: ${POSTGRES_PORT}
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  database: ${POSTGRES_DATABASE}
+
+server:
+  port: ${SERVER_PORT}
+  mode: ${SERVER_MODE}
+
+jwt:
+  issuer: ${JWT_ISSUER}
+  user_access_token_key: ${JWT_USER_ACCESS_TOKEN_KEY}
+  user_refresh_token_key: ${JWT_USER_REFRESH_TOKEN_KEY}
+
+grpc:
+  port: ${GRPC_PORT}
