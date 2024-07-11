@@ -13,12 +13,10 @@ jobs:
         name: Check out code
 
       - name: Set env from github secrets
-        run: |
-          SECRETS=$(env | grep -oP '^(?!DOCKER_)\K.*')
-          for secret_name in $SECRETS; do
-            echo "Setting $secret_name=${{ secrets[$secret_name] }}"
-            echo "::set-env name=$secret_name::${{ secrets[$secret_name] }}"
-          done
+        uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
+          exclude: DOCKER_USERNAME, DOCKER_PASSWORD
 
       - name: Generate config.yml
         run: |
