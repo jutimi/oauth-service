@@ -19,7 +19,8 @@ func (h *oauthHelper) GenerateAccessToken(user entity.User) (string, error) {
 	conf := config.GetConfiguration().Jwt
 
 	payload := &utils.UserPayload{
-		ID: user.ID,
+		ID:    user.ID,
+		Scope: utils.USER_SCOPE,
 	}
 	accessToken, err := utils.GenerateToken(payload, conf.UserAccessTokenKey, utils.USER_ACCESS_TOKEN_IAT)
 	if err != nil {

@@ -7,7 +7,9 @@ import (
 	"oauth-server/app/model"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
+	"oauth-server/config"
 	"oauth-server/package/errors"
+	"oauth-server/utils"
 	"time"
 )
 
@@ -27,6 +29,17 @@ func NewOAuthService(
 }
 
 func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
+	conf := config.GetConfiguration().Jwt
+
+	// Verify refresh token
+	claims, err := utils.VerifyToken(data.RefreshToken, conf.UserRefreshTokenKey)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeInternalServerError)
+	}
+	userPayload, ok := claims.(*utils.UserPayload)
+	if !ok {
+		return nil, errors.New(errors.ErrCodeInternalServerError)
+	}
 
 	// Check user oauth
 	userOAuth, err := s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
@@ -35,6 +48,9 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 
 	if err != nil || userOAuth.Status != entity.OAuthStatusActive {
 		return nil, errors.New(errors.ErrCodeUserNotFound)
+	}
+	if userOAuth.UserID != userPayload.ID {
+		return nil, errors.New(errors.ErrCodeUnauthorized)
 	}
 	currentTime := time.Now().Unix()
 	if currentTime > userOAuth.ExpireAt {

@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "gRPC/common.proto";
 option go_package = "oauth-server/grpc/user/user_grpc";
 
 package user_grpc;
@@ -36,16 +37,24 @@ message FileChunk {
 
 // ----------------------- Response -----------------------
 message UserResponse {
+    bool success = 1;
+    UserDetail data = 2;
+    common_grpc.ErrorResponse error = 3;
+}
+
+message UserDetail {
     string id = 1;
     optional string phoneNumber = 2;
     optional string email = 3;
 }
 
 message UsersResponse {
-    repeated UserResponse users = 1;
+    bool success = 1;
+    repeated UserDetail data = 2;
+    common_grpc.ErrorResponse error = 3;
 }
   
 message UploadResponse {
     bool success = 1;
-    string message = 2;
+    common_grpc.ErrorResponse error = 2;
 }

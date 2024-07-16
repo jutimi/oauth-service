@@ -9,7 +9,9 @@ import (
 )
 
 type UserPayload struct {
-	ID uuid.UUID `json:"id"`
+	ID    uuid.UUID `json:"id"`
+	Scope string    `json:"scopes"`
+	jwt.RegisteredClaims
 }
 
 /*

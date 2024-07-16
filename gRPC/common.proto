@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package common_grpc;
+
+option go_package = "oauth-server/grpc/user/common_grpc";
+
+message ErrorResponse {
+    int32 errorCode = 1;
+    string errorMessage = 2;
+}

@@ -33,6 +33,7 @@ const (
 	ErrCodeInternalServerError = 500
 	ErrCodeTimeout             = 408
 	ErrCodeForbidden           = 403
+	ErrCodeUnauthorized        = 401
 )
 
 var messages = map[int]map[string]string{
@@ -54,7 +55,10 @@ var messages = map[int]map[string]string{
 		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
 	},
 	ErrCodeForbidden: {
-		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
+		LangVN: "Bạn không đủ quyền truy cập tài nguyên này. Vui lòng kiểm tra lại quyền",
+	},
+	ErrCodeUnauthorized: {
+		LangVN: "Bạn không có quyền truy cập tài nguyên này. Vui lòng kiểm tra lại quyền",
 	},
 
 	// User Error

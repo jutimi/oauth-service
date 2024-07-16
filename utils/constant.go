@@ -22,3 +22,9 @@ const (
 	DEBUG_MODE   = "debug"
 	RELEASE_MODE = "release"
 )
+
+const (
+	USER_SCOPE           = "user"
+	WORKSPACE_SCOPE      = "workspace"
+	USER_WORKSPACE_SCOPE = "user_workspace"
+)
