@@ -11,7 +11,7 @@ import (
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/app/service"
 	"oauth-server/config"
-	user_grpc "oauth-server/gRPC/user"
+	gRPC "oauth-server/grpc"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
 	_validator "oauth-server/package/validator"
@@ -24,6 +24,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/jutimi/grpc-service/oauth"
 	"google.golang.org/grpc"
 )
 
@@ -117,8 +118,9 @@ func startGRPCServer(
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
 
-	// Register serever
-	user_grpc.RegisterUserRouteServer(grpcServer, user_grpc.NewUserServer(postgresRepo))
+	// Register server
+	oauth.RegisterOAuthRouteServer(grpcServer, gRPC.NewGRPCServer(postgresRepo))
+	oauth.RegisterUserRouteServer(grpcServer, gRPC.NewGRPCServer(postgresRepo))
 
 	logger.Println(logger.LogPrintln{
 		FileName:  "main.go",
