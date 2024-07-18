@@ -1,4 +1,4 @@
-package gRPC
+package server_grpc
 
 import (
 	context "context"
@@ -21,9 +21,14 @@ type grpcServer struct {
 	postgresRepo postgres_repository.PostgresRepositoryCollections
 }
 
+type OAuthServer interface {
+	oauth.UserRouteServer
+	oauth.OAuthRouteServer
+}
+
 func NewGRPCServer(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
-) GRPCServer {
+) OAuthServer {
 	return &grpcServer{
 		postgresRepo: postgresRepo,
 	}

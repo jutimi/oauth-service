@@ -12,5 +12,6 @@ type Server struct {
 }
 
 type GRPC struct {
-	Port int `mapstructure:"port"`
+	Port          int    `mapstructure:"port"`
+	WorkspaceGRPC string `mapstructure:"workspace_grpc"`
 }

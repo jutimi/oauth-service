@@ -24,7 +24,7 @@ func InitMysql() {
 	)
 	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("error_connecting_to_database: %v", err)
+		log.Fatalf("Error connect to mysql: %v", err)
 	}
 
 	postgresDB = conn

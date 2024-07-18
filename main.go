@@ -11,7 +11,8 @@ import (
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/app/service"
 	"oauth-server/config"
-	gRPC "oauth-server/grpc"
+	server_grpc "oauth-server/grpc"
+	client_grpc "oauth-server/grpc/client"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
 	_validator "oauth-server/package/validator"
@@ -35,10 +36,11 @@ func main() {
 	postgresDB := database.GetPostgres()
 	// mysqlRepo := mysql_repository.RegisterMysqlRepositories(db)
 	postgresRepo := postgres_repository.RegisterPostgresRepositories(postgresDB)
+	clientGRPC := client_grpc.RegisterClientGRPC()
 
 	// Register Others
-	helpers := helper.RegisterHelpers(postgresRepo)
-	services := service.RegisterServices(helpers, postgresRepo)
+	helpers := helper.RegisterHelpers(postgresRepo, clientGRPC)
+	services := service.RegisterServices(helpers, clientGRPC, postgresRepo)
 
 	// Run GRPC Server
 	go startGRPCServer(conf, postgresRepo)
@@ -119,8 +121,8 @@ func startGRPCServer(
 	grpcServer := grpc.NewServer(opts...)
 
 	// Register server
-	oauth.RegisterOAuthRouteServer(grpcServer, gRPC.NewGRPCServer(postgresRepo))
-	oauth.RegisterUserRouteServer(grpcServer, gRPC.NewGRPCServer(postgresRepo))
+	oauth.RegisterOAuthRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
+	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
 
 	logger.Println(logger.LogPrintln{
 		FileName:  "main.go",
