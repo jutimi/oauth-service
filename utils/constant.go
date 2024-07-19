@@ -9,8 +9,9 @@ const (
 )
 
 const (
-	GIN_CONTEXT_KEY  key = "GIN"
-	USER_CONTEXT_KEY key = "USER"
+	GIN_CONTEXT_KEY   key = "GIN"
+	USER_CONTEXT_KEY  key = "USER"
+	SCOPE_CONTEXT_KEY key = "SCOPE"
 )
 
 const (

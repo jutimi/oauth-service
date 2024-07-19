@@ -6,11 +6,16 @@ import (
 )
 
 type UserService interface {
-	Login(ctx context.Context, data *model.LoginRequest) (*model.LoginResponse, error)
 	Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error)
-	Logout(ctx context.Context, data *model.LogoutRequest) (*model.LogoutResponse, error)
 }
 
-type OAuthService interface {
+type OAuthService[
+	LoginParams model.UserLoginRequest | model.WorkspaceLoginRequest,
+	LoginResponse model.UserLoginResponse | model.WorkspaceLoginResponse,
+	LogoutParams model.UserLogoutRequest | model.WorkspaceLogoutRequest,
+	LogoutResponse model.UserLogoutResponse | model.WorkspaceLogoutResponse,
+] interface {
 	RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error)
+	Login(ctx context.Context, data *LoginParams) (*LoginResponse, error)
+	Logout(ctx context.Context, data *LogoutParams) (*LoginResponse, error)
 }
