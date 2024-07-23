@@ -1,12 +1,12 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE users (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    email varchar(100),
-    phone_number varchar(20),
-    password text NOT NULL,
-    is_active boolean DEFAULT true
-    created_at bigint,
-    updated_at bigint
+    email VARCHAR(100),
+    phone_number VARCHAR(20),
+    password TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT true
+    created_at BIGINT,
+    updated_at BIGINT
 );
 
 -- +goose Down

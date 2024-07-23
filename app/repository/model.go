@@ -17,4 +17,5 @@ type FindOAuthByFilter struct {
 	UserID   *uuid.UUID
 	Token    *string
 	PlatForm *string
+	Scope    *string
 }

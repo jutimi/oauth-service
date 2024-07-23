@@ -23,6 +23,7 @@ const (
 	ErrCodeValidatorRequired     = 1
 	ErrCodeValidatorFormat       = 2
 	ErrCodeValidatorVerifiedData = 3
+	ErrCodeMethodNotSupported    = 4
 
 	ErrCodeUserNotFound = 10
 	ErrCodeUserExisted  = 11
@@ -37,7 +38,7 @@ const (
 )
 
 var messages = map[int]map[string]string{
-	// Validator
+	// Validator Error
 	ErrCodeValidatorRequired: {
 		LangVN: "không được bỏ trống. Vui lòng kiểm tra lại",
 	},
@@ -47,7 +48,11 @@ var messages = map[int]map[string]string{
 	ErrCodeValidatorVerifiedData: {
 		LangVN: "không chính xác. Vui lòng kiểm tra lại",
 	},
+	ErrCodeMethodNotSupported: {
+		LangVN: "Phương thức chưa được hỗ trợ",
+	},
 
+	// Basic Error
 	ErrCodeInternalServerError: {
 		LangVN: "Hệ thống gặp lỗi. Vui lòng thử lại sau",
 	},

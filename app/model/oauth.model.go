@@ -19,6 +19,7 @@ type UserLoginResponse struct {
 }
 
 type UserLogoutRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 type UserLogoutResponse struct {
 }
@@ -33,21 +34,7 @@ type WorkspaceLoginResponse struct {
 }
 
 type WorkspaceLogoutRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 type WorkspaceLogoutResponse struct {
-}
-
-// Other
-type LoginParams interface {
-	UserLoginRequest | WorkspaceLoginRequest
-}
-type LoginResponse interface {
-	UserLoginResponse | WorkspaceLoginResponse
-}
-
-type LogoutParams interface {
-	UserLogoutRequest | WorkspaceLogoutRequest
-}
-type LogoutResponse interface {
-	UserLogoutResponse | WorkspaceLogoutResponse
 }

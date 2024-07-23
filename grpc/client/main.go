@@ -1,12 +1,11 @@
 package client_grpc
 
 type ClientGRPCCollection struct {
-	wsClient WorkspaceClient
+	WSClient WorkspaceClient
 }
 
 func RegisterClientGRPC() ClientGRPCCollection {
-
 	return ClientGRPCCollection{
-		wsClient: NewWsClient(),
+		WSClient: NewWsClient(),
 	}
 }

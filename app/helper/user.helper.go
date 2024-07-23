@@ -16,6 +16,5 @@ func (h *userHelper) CreateUser(
 	ctx context.Context,
 	user *entity.User,
 ) error {
-
 	return nil
 }

@@ -91,7 +91,7 @@ func (h *oAuthHandler) userLogin(c *gin.Context) {
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.USER_SCOPE)
 
-	res, err := h.services.UserSvc.Login(ctx, &data)
+	res, err := h.services.OAuthSvc.Login(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return
@@ -113,7 +113,7 @@ func (h *oAuthHandler) userLogout(c *gin.Context) {
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.USER_SCOPE)
 
-	res, err := h.services.UserSvc.Logout(ctx, &data)
+	res, err := h.services.OAuthSvc.Logout(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return
@@ -135,7 +135,7 @@ func (h *oAuthHandler) wsLogin(c *gin.Context) {
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
 
-	res, err := h.services.UserSvc.Login(ctx, &data)
+	res, err := h.services.OAuthSvc.Login(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return
@@ -157,7 +157,7 @@ func (h *oAuthHandler) wsLogout(c *gin.Context) {
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
 
-	res, err := h.services.UserSvc.Logout(ctx, &data)
+	res, err := h.services.OAuthSvc.Logout(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return

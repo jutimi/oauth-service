@@ -17,7 +17,7 @@ func RegisterServices(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) ServiceCollections {
 	userSvc := NewUserService(helpers, postgresRepo)
-	oauthSvc := NewOAuthService(helpers, postgresRepo)
+	oauthSvc := NewOAuthService(helpers, postgresRepo, clientGRPC)
 
 	return ServiceCollections{
 		UserSvc:  userSvc,
