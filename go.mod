@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/jutimi/grpc-service v0.0.0-20240718030936-a083b0a1f587
+	github.com/jutimi/grpc-service v0.0.0-20240723105941-d47cd239463f
 	google.golang.org/grpc v1.65.0
 )
 

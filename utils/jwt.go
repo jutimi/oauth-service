@@ -14,6 +14,14 @@ type UserPayload struct {
 	jwt.RegisteredClaims
 }
 
+type WorkspacePayload struct {
+	ID              uuid.UUID `json:"id"`
+	Scope           string    `json:"scopes"`
+	WorkspaceID     uuid.UUID `json:"workspace_id"`
+	UserWorkspaceID uuid.UUID `json:"user_workspace_id"`
+	jwt.RegisteredClaims
+}
+
 /*
 Parameters:
 

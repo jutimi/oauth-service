@@ -6,6 +6,8 @@ import (
 	"oauth-server/config"
 	logger "oauth-server/package/log"
 	"oauth-server/utils"
+
+	"github.com/jutimi/grpc-service/workspace"
 )
 
 type oauthHelper struct {
@@ -54,4 +56,16 @@ func (h *oauthHelper) GenerateRefreshToken(user entity.User) (string, error) {
 	}
 
 	return refreshToken, nil
+}
+
+func (h *oauthHelper) GenerateWSAccessToken(userWS workspace.UserWorkspaceDetail) (string, error) {
+	conf := config.GetConfiguration().Jwt
+
+	payload := &utils.WorkspacePayload{}
+	accessToken, err := utils.GenerateToken(payload, conf.UserAccessTokenKey, utils.USER_ACCESS_TOKEN_IAT)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
 }

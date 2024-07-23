@@ -14,6 +14,7 @@ import (
 	"oauth-server/utils"
 	"time"
 
+	"github.com/jutimi/grpc-service/workspace"
 	"gorm.io/gorm"
 )
 
@@ -149,6 +150,10 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Check user workspace exist
+		_, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return nil, errors.New(errors.ErrCodeMethodNotSupported)

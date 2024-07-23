@@ -20,6 +20,7 @@ type workspaceClient struct {
 type WorkspaceClient interface {
 	GetWorkspaceById(ctx context.Context, data *common.GetByIdParams) (*workspace.WorkspaceResponse, error)
 	GetUserWSById(ctx context.Context, data *common.GetByIdParams) (*workspace.UserWorkspaceResponse, error)
+	GetUserWSByFilter(ctx context.Context, data *workspace.GetUserWorkspaceByFilterParams) (*workspace.UserWorkspaceResponse, error)
 }
 
 func NewWsClient() WorkspaceClient {
@@ -64,6 +65,24 @@ func (c *workspaceClient) GetUserWSById(
 	data *common.GetByIdParams,
 ) (*workspace.UserWorkspaceResponse, error) {
 	resp, err := c.userWSClient.GetUserWorkspaceById(ctx, data)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeInternalServerError)
+	}
+	if resp.Error != nil {
+		return nil, errors.NewCustomError(int(resp.Error.ErrorCode), resp.Error.ErrorMessage)
+	}
+	if !resp.Success {
+		return nil, errors.New(errors.ErrCodeInternalServerError)
+	}
+
+	return resp, nil
+}
+
+func (c *workspaceClient) GetUserWSByFilter(
+	ctx context.Context,
+	data *workspace.GetUserWorkspaceByFilterParams,
+) (*workspace.UserWorkspaceResponse, error) {
+	resp, err := c.userWSClient.GetUserWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
