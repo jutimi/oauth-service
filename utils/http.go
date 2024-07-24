@@ -19,11 +19,11 @@ func FormatErrorResponse(err error) map[string]interface{} {
 	}
 }
 
-func GetScopeContext(ctx context.Context) (string, error) {
-	ctxData := ctx.Value(SCOPE_CONTEXT_KEY)
-	data, ok := ctxData.(string)
+func GetScopeContext[T string | *UserPayload | *WorkspacePayload](ctx context.Context, key string) (T, error) {
+	ctxData := ctx.Value(key)
+	data, ok := ctxData.(T)
 	if !ok {
-		return "", errors.ErrUnsupported
+		return data, errors.ErrUnsupported
 	}
 
 	return data, nil

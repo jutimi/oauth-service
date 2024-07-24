@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"oauth-server/app/middleware"
 	"oauth-server/app/model"
 	"oauth-server/app/service"
 	_errors "oauth-server/package/errors"
@@ -14,23 +15,28 @@ import (
 )
 
 type oAuthHandler struct {
-	services service.ServiceCollections
+	services   service.ServiceCollections
+	middleware middleware.MiddlewareCollections
 }
 
-func NewApiOAuthController(router *gin.Engine, services service.ServiceCollections) {
-	handler := oAuthHandler{services}
+func NewApiOAuthController(
+	router *gin.Engine,
+	services service.ServiceCollections,
+	middleware middleware.MiddlewareCollections,
+) {
+	handler := oAuthHandler{services, middleware}
 
 	group := router.Group("api/v1/oauth")
 	{
 		userGroup := group.Group("users")
 		userGroup.POST("/refresh", handler.refreshUserToken)
 		userGroup.POST("/login", handler.userLogin)
-		userGroup.POST("/logout", handler.userLogout)
+		userGroup.POST("/logout", handler.userLogout, middleware.UserMW.Handler())
 
 		wsGroup := userGroup.Group("workspaces")
 		wsGroup.POST("/refresh", handler.refreshWSToken)
-		wsGroup.POST("/login", handler.wsLogin)
-		wsGroup.POST("/logout", handler.wsLogout)
+		wsGroup.POST("/login", handler.wsLogin, middleware.UserMW.Handler())
+		wsGroup.POST("/logout", handler.wsLogout, middleware.WorkspaceMW.Handler())
 	}
 }
 

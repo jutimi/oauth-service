@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"oauth-server/app/controller"
 	"oauth-server/app/helper"
+	"oauth-server/app/middleware"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/app/service"
 	"oauth-server/config"
@@ -22,6 +23,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -41,6 +43,7 @@ func main() {
 	// Register Others
 	helpers := helper.RegisterHelpers(postgresRepo, clientGRPC)
 	services := service.RegisterServices(helpers, clientGRPC, postgresRepo)
+	middleware := middleware.RegisterMiddleware()
 
 	// Run GRPC Server
 	go startGRPCServer(conf, postgresRepo)
@@ -59,7 +62,7 @@ func main() {
 	router.GET("/health-check", func(c *gin.Context) {
 		c.String(200, "OK")
 	})
-	controller.RegisterControllers(router, services)
+	controller.RegisterControllers(router, services, middleware)
 
 	// Start server
 	srv := &http.Server{
@@ -106,6 +109,17 @@ func init() {
 	config.Init(configFile)
 	database.InitPostgres()
 	logger.Init()
+
+	if err := sentry.Init(sentry.ClientOptions{
+		Dsn:           config.GetConfiguration().Server.SentryUrl,
+		EnableTracing: true,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	}); err != nil {
+		log.Fatalf("Error Init Sentry: %s", err.Error())
+	}
 }
 
 func startGRPCServer(
