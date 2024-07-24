@@ -2,20 +2,16 @@ package service
 
 import (
 	"context"
-	"oauth-server/app/entity"
 	"oauth-server/app/helper"
 	"oauth-server/app/model"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/config"
 	client_grpc "oauth-server/grpc/client"
-	"oauth-server/package/database"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
-	"time"
 
 	"github.com/jutimi/grpc-service/workspace"
-	"gorm.io/gorm"
 )
 
 type oAuthService struct {
@@ -38,58 +34,98 @@ func NewOAuthService(
 
 func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
-
-	// Verify refresh token
-	claims, err := utils.VerifyToken(data.RefreshToken, conf.UserRefreshTokenKey)
+	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
-	userPayload, ok := claims.(*utils.UserPayload)
-	if !ok {
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
 
-	// Check user oauth
-	userOAuth, err := s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
-		Token: &data.RefreshToken,
-	})
+	switch scope {
+	case utils.USER_SCOPE:
+		// Verify refresh token
+		claims, err := utils.VerifyToken(data.RefreshToken, conf.UserRefreshTokenKey)
+		if err != nil {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+		userPayload, ok := claims.(*utils.UserPayload)
+		if !ok {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
 
-	if err != nil || userOAuth.Status != entity.OAuthStatusActive {
-		return nil, errors.New(errors.ErrCodeUserNotFound)
-	}
-	if userOAuth.UserID != userPayload.ID {
-		return nil, errors.New(errors.ErrCodeUnauthorized)
-	}
-	currentTime := time.Now().Unix()
-	if currentTime > userOAuth.ExpireAt {
-		return nil, errors.New(errors.ErrCodeTokenExpired)
-	}
+		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
+			RefreshToken: data.RefreshToken,
+			Scope:        scope,
+			UserID:       userPayload.ID,
+		}); err != nil {
+			return nil, err
+		}
 
-	// Check user exit
-	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
-		ID: &userOAuth.UserID,
-	})
-	if err != nil {
-		return nil, errors.New(errors.ErrCodeUserNotFound)
-	}
+		// Check user exit
+		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
+			ID: &userPayload.ID,
+		})
+		if err != nil {
+			return nil, errors.New(errors.ErrCodeUserNotFound)
+		}
 
-	// Generate new token
-	accessToken, err := s.helpers.OauthHelper.GenerateAccessToken(*user)
-	if err != nil {
-		return nil, err
-	}
+		// Generate new token
+		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.ACCESS_TOKEN)
+		if err != nil {
+			return nil, err
+		}
 
-	return &model.RefreshTokenResponse{
-		AccessToken: accessToken,
-	}, nil
+		return &model.RefreshTokenResponse{
+			AccessToken: accessToken,
+		}, nil
+	case utils.WORKSPACE_SCOPE:
+		// Verify refresh token
+		claims, err := utils.VerifyToken(data.RefreshToken, conf.WSRefreshTokenKey)
+		if err != nil {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+		wsPayload, ok := claims.(*utils.WorkspacePayload)
+		if !ok {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+
+		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
+			RefreshToken: data.RefreshToken,
+			Scope:        scope,
+			UserID:       wsPayload.ID,
+		}); err != nil {
+			return nil, err
+		}
+
+		// Check user workspace exit
+		id := wsPayload.UserWorkspaceID.String()
+		isActive := true
+		userWS, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+			Id:       &id,
+			IsActive: &isActive,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		// Generate new token
+		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.Data, utils.ACCESS_TOKEN)
+		if err != nil {
+			return nil, err
+		}
+
+		return &model.RefreshTokenResponse{
+			AccessToken: accessToken,
+		}, nil
+	default:
+		return nil, errors.New(errors.ErrCodeMethodNotSupported)
+	}
 }
 
 func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}, error) {
-	var userOAuth *entity.Oauth
-	scope, err := utils.GetScopeContext(ctx)
+	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
 	if err != nil {
 		return nil, err
 	}
+
 	switch scope {
 	case utils.USER_SCOPE:
 		form, ok := data.(*model.UserLoginRequest)
@@ -110,62 +146,83 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Generate token
-		accessToken, err := s.helpers.OauthHelper.GenerateAccessToken(*user)
+		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.ACCESS_TOKEN)
 		if err != nil || accessToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		refreshToken, err := s.helpers.OauthHelper.GenerateRefreshToken(*user)
+		refreshToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.REFRESH_TOKEN)
 		if err != nil || refreshToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 
-		// Create User OAuth
-		tx := database.BeginPostgresTransaction()
-		userOAuth, err = s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, tx, &repository.FindOAuthByFilter{
-			UserID: &user.ID,
-		})
-		if err == gorm.ErrRecordNotFound {
-			userOAuth = entity.NewOAuth()
-			userOAuth.UserID = user.ID
-			userOAuth.Status = entity.OAuthStatusActive
+		if err := s.helpers.OauthHelper.ActiveToken(ctx, &helper.ActiveTokenParams{
+			Token:    refreshToken,
+			Scope:    scope,
+			UserID:   user.ID,
+			TokenIAT: utils.USER_REFRESH_TOKEN_IAT,
+		}); err != nil {
+			return nil, err
 		}
-
-		userOAuth.Token = refreshToken
-		userOAuth.ExpireAt = time.Now().Add(utils.USER_REFRESH_TOKEN_IAT * time.Second).Unix()
-		userOAuth.LoginAt = time.Now().Unix()
-		if err := s.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
-			tx.WithContext(ctx).Rollback()
-			return nil, errors.New(errors.ErrCodeInternalServerError)
-		}
-		tx.WithContext(ctx).Commit()
 
 		return &model.UserLoginResponse{
 			AccessToken:  accessToken,
 			RefreshToken: refreshToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
-		_, ok := data.(*model.WorkspaceLoginRequest)
+		form, ok := data.(*model.WorkspaceLoginRequest)
 		if !ok {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 
 		// Check user workspace exist
-		_, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{})
+		userPayload, err := utils.GetScopeContext[*utils.UserPayload](ctx, string(utils.USER_CONTEXT_KEY))
+		if err != nil {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+		userId := userPayload.ID.String()
+		userWS, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+			WorkspaceId: &form.WorkspaceID,
+			UserId:      &userId,
+		})
 		if err != nil {
 			return nil, err
 		}
+
+		// Generate token
+		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.GetData(), utils.ACCESS_TOKEN)
+		if err != nil || accessToken == "" {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+		refreshToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.GetData(), utils.REFRESH_TOKEN)
+		if err != nil || refreshToken == "" {
+			return nil, errors.New(errors.ErrCodeInternalServerError)
+		}
+
+		// Create User OAuth
+		if err := s.helpers.OauthHelper.ActiveToken(ctx, &helper.ActiveTokenParams{
+			Token:    refreshToken,
+			Scope:    scope,
+			UserID:   userPayload.ID,
+			TokenIAT: utils.USER_REFRESH_TOKEN_IAT,
+		}); err != nil {
+			return nil, err
+		}
+
+		return &model.WorkspaceLoginResponse{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}, nil
 	}
 
 	return nil, errors.New(errors.ErrCodeMethodNotSupported)
 }
 
 func (s *oAuthService) Logout(ctx context.Context, data interface{}) (interface{}, error) {
-	scope, err := utils.GetScopeContext(ctx)
+	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
 	if err != nil {
 		return nil, err
 	}
 
-	token := ""
 	switch scope {
 	case utils.USER_SCOPE:
 		form, ok := data.(*model.UserLogoutRequest)
@@ -173,40 +230,27 @@ func (s *oAuthService) Logout(ctx context.Context, data interface{}) (interface{
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 
-		token = form.RefreshToken
+		if err := s.helpers.OauthHelper.DeActiveToken(ctx, &helper.DeActiveTokenParams{
+			Scope: scope,
+			Token: form.RefreshToken,
+		}); err != nil {
+			return nil, err
+		}
+
+		return &model.UserLogoutResponse{}, nil
 	case utils.WORKSPACE_SCOPE:
 		form, ok := data.(*model.WorkspaceLogoutRequest)
 		if !ok {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 
-		token = form.RefreshToken
-	default:
-		return nil, errors.New(errors.ErrCodeMethodNotSupported)
-	}
+		if err := s.helpers.OauthHelper.DeActiveToken(ctx, &helper.DeActiveTokenParams{
+			Scope: scope,
+			Token: form.RefreshToken,
+		}); err != nil {
+			return nil, err
+		}
 
-	// Find User OAuth
-	userOAuth, err := s.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
-		Token: &token,
-		Scope: &scope,
-	})
-	if err != nil {
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
-
-	// Deactivate User OAuth
-	tx := database.BeginPostgresTransaction()
-	userOAuth.Status = entity.OAuthStatusInactive
-	if err := s.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
-		tx.WithContext(ctx).Rollback()
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
-	tx.WithContext(ctx).Commit()
-
-	switch scope {
-	case utils.USER_SCOPE:
-		return &model.UserLogoutResponse{}, nil
-	case utils.WORKSPACE_SCOPE:
 		return &model.WorkspaceLogoutResponse{}, nil
 	}
 

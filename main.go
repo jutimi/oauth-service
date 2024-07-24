@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"oauth-server/app/controller"
 	"oauth-server/app/helper"
+	"oauth-server/app/middleware"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/app/service"
 	"oauth-server/config"
@@ -41,6 +42,7 @@ func main() {
 	// Register Others
 	helpers := helper.RegisterHelpers(postgresRepo, clientGRPC)
 	services := service.RegisterServices(helpers, clientGRPC, postgresRepo)
+	middleware := middleware.RegisterMiddleware()
 
 	// Run GRPC Server
 	go startGRPCServer(conf, postgresRepo)
@@ -59,7 +61,7 @@ func main() {
 	router.GET("/health-check", func(c *gin.Context) {
 		c.String(200, "OK")
 	})
-	controller.RegisterControllers(router, services)
+	controller.RegisterControllers(router, services, middleware)
 
 	// Start server
 	srv := &http.Server{

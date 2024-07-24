@@ -9,14 +9,23 @@ const (
 )
 
 const (
-	GIN_CONTEXT_KEY   key = "GIN"
-	USER_CONTEXT_KEY  key = "USER"
-	SCOPE_CONTEXT_KEY key = "SCOPE"
+	GIN_CONTEXT_KEY       key = "GIN"
+	USER_CONTEXT_KEY      key = "USER"
+	SCOPE_CONTEXT_KEY     key = "SCOPE"
+	WORKSPACE_CONTEXT_KEY key = "WORKSPACE"
 )
 
 const (
+	ACCESS_TOKEN  = "access_token"
+	REFRESH_TOKEN = "refresh_token"
+
+	USER_AUTHORIZATION     = "User-Authorization"
 	USER_ACCESS_TOKEN_IAT  = 15 * 60           // 15 minutes
 	USER_REFRESH_TOKEN_IAT = 30 * 24 * 60 * 60 // 30 days
+
+	WORKSPACE_AUTHORIZATION = "Workspace-Authorization"
+	WS_ACCESS_TOKEN_IAT     = 15 * 60           // 15 minutes
+	WS_REFRESH_TOKEN_IAT    = 30 * 24 * 60 * 60 // 30 days
 )
 
 const (

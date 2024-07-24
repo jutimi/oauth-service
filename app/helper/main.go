@@ -13,7 +13,7 @@ func RegisterHelpers(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 	clientGRPC client_grpc.ClientGRPCCollection,
 ) HelperCollections {
-	oauthHelper := NewOauthHelper()
+	oauthHelper := NewOauthHelper(postgresRepo)
 
 	return HelperCollections{
 		OauthHelper: oauthHelper,
