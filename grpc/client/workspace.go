@@ -9,6 +9,7 @@ import (
 	"github.com/jutimi/grpc-service/common"
 	"github.com/jutimi/grpc-service/workspace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type workspaceClient struct {
@@ -24,7 +25,9 @@ type WorkspaceClient interface {
 }
 
 func NewWsClient() WorkspaceClient {
-	var opts []grpc.DialOption
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
 	conf := config.GetConfiguration().GRPC
 
 	// Connect to Workspace grpc server
