@@ -20,6 +20,8 @@ jwt:
   issuer: ${JWT_ISSUER}
   user_access_token_key: ${JWT_USER_ACCESS_TOKEN_KEY}
   user_refresh_token_key: ${JWT_USER_REFRESH_TOKEN_KEY}
+  workspace_access_token_key: ${JWT_WORKSPACE_ACCESS_TOKEN_KEY}
+  workspace_refresh_token_key: ${JWT_WORKSPACE_REFRESH_TOKEN_KEY}
 
 grpc:
   port: ${GRPC_PORT}
