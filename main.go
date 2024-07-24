@@ -139,6 +139,8 @@ func startGRPCServer(
 	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
 
 	if err := grpcServer.Serve(lis); err != nil {
-		panic(err)
+		log.Fatalf("Error Init GRPC: %s", err.Error())
 	}
+
+	log.Println("Init GRPC Success!")
 }
