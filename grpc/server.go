@@ -161,6 +161,14 @@ func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParam
 	return nil, nil
 }
 
+func (s *grpcServer) CheckUserPermission(context.Context, *oauth.CheckPermissionParams) (*oauth.CheckPermissionResponse, error) {
+	return nil, nil
+}
+
+func (s *grpcServer) CheckUserWSPermission(context.Context, *oauth.CheckPermissionParams) (*oauth.CheckPermissionResponse, error) {
+	return nil, nil
+}
+
 // ------------------------ Helper ------------------------
 func convertUserParamsToFilter(data *oauth.GetUserByFilterParams) (*repository.FindUserByFilter, error) {
 	var userId uuid.UUID
