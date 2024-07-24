@@ -15,6 +15,7 @@ postgres:
 server:
   port: ${SERVER_PORT}
   mode: ${SERVER_MODE}
+  sentry_url: ${SENTRY_URL}
 
 jwt:
   issuer: ${JWT_ISSUER}

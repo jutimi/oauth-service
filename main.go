@@ -23,6 +23,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -108,6 +109,17 @@ func init() {
 	config.Init(configFile)
 	database.InitPostgres()
 	logger.Init()
+
+	if err := sentry.Init(sentry.ClientOptions{
+		Dsn:           config.GetConfiguration().Server.SentryUrl,
+		EnableTracing: true,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	}); err != nil {
+		log.Fatalf("Error Init Sentry: %s", err.Error())
+	}
 }
 
 func startGRPCServer(
