@@ -3,15 +3,13 @@ module oauth-server
 go 1.22.4
 
 require (
+	github.com/getsentry/sentry-go v0.28.1
 	github.com/google/uuid v1.6.0
 	github.com/jutimi/grpc-service v0.0.0-20240724072932-7c3465cc5288
 	google.golang.org/grpc v1.65.0
 )
 
-require (
-	github.com/getsentry/sentry-go v0.28.1 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
-)
+require google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 
 require (
 	github.com/bytedance/sonic/loader v0.1.1 // indirect

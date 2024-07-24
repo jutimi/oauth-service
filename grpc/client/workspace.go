@@ -31,7 +31,7 @@ func NewWsClient() WorkspaceClient {
 	conf := config.GetConfiguration().GRPC
 
 	// Connect to Workspace grpc server
-	conn, err := grpc.NewClient(conf.WorkspaceGRPC, opts...)
+	conn, err := grpc.NewClient(conf.WorkspacePort, opts...)
 	if err != nil {
 		log.Fatalf("Error connect to Workspace grpc server: %s", err.Error())
 	}

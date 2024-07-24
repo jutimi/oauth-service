@@ -127,7 +127,7 @@ func startGRPCServer(
 
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPC.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPC.OAuthPort))
 	if err != nil {
 		panic(err)
 	}
@@ -138,15 +138,6 @@ func startGRPCServer(
 	oauth.RegisterOAuthRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
 	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
 
-	logger.Println(logger.LogPrintln{
-		FileName:  "main.go",
-		FuncName:  "main",
-		TraceData: "",
-		Msg: fmt.Sprintf(
-			"GRPC Server Running Port - %d",
-			conf.GRPC.Port,
-		),
-	})
 	if err := grpcServer.Serve(lis); err != nil {
 		panic(err)
 	}
