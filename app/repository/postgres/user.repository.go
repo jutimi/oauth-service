@@ -6,6 +6,7 @@ import (
 	"oauth-server/app/repository"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -133,7 +134,7 @@ func (r *userRepository) buildFilter(
 		query = query.Scopes(findByText(*filter.PhoneNumber, "phone_number"))
 	}
 	if filter.ID != nil {
-		query = query.Scopes(findById(*filter.ID, "id"))
+		query = query.Scopes(findByString[uuid.UUID](*filter.ID, "id"))
 	}
 	if filter.IDs != nil && len(filter.IDs) > 0 {
 		query = query.Scopes(findBySlice(filter.IDs, "id"))
@@ -146,6 +147,9 @@ func (r *userRepository) buildFilter(
 	}
 	if filter.Limit != nil && filter.Offset != nil {
 		query = query.Scopes(paginate(*filter.Limit, *filter.Offset))
+	}
+	if filter.IsActive != nil {
+		query = query.Scopes(findByBool(*filter.IsActive, "is_active"))
 	}
 
 	return query

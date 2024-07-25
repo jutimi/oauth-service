@@ -14,6 +14,7 @@ type FindUserByFilter struct {
 	PhoneNumbers []string
 	Limit        *int
 	Offset       *int
+	IsActive     *bool
 }
 
 type FindOAuthByFilter struct {

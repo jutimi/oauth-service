@@ -39,46 +39,6 @@ func NewGRPCServer(
 	}
 }
 
-func (s *grpcServer) GetUserById(ctx context.Context, data *common.GetByIdParams) (*oauth.UserResponse, error) {
-	userId, err := utils.ConvertStringToUUID(data.Id)
-	if err != nil {
-		customErr := errors.New(errors.ErrCodeInternalServerError)
-		return &oauth.UserResponse{
-			Success: false,
-			Data:    nil,
-			Error: grpc_utils.FormatErrorResponse(
-				int32(customErr.GetCode()),
-				customErr.Error(),
-			),
-		}, nil
-	}
-
-	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-		ID: &userId,
-	})
-	if err != nil {
-		customErr := errors.New(errors.ErrCodeUserNotFound)
-		return &oauth.UserResponse{
-			Success: false,
-			Data:    nil,
-			Error: grpc_utils.FormatErrorResponse(
-				int32(customErr.GetCode()),
-				customErr.Error(),
-			),
-		}, nil
-	}
-
-	return &oauth.UserResponse{
-		Success: true,
-		Data: &oauth.UserDetail{
-			Id:          user.ID.String(),
-			PhoneNumber: user.PhoneNumber,
-			Email:       user.Email,
-		},
-		Error: nil,
-	}, nil
-}
-
 func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserByFilterParams) (*oauth.UsersResponse, error) {
 
 	var usersRes []*oauth.UserDetail
@@ -111,9 +71,11 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 
 	for _, user := range users {
 		usersRes = append(usersRes, &oauth.UserDetail{
-			Id:          user.ID.String(),
-			PhoneNumber: user.PhoneNumber,
-			Email:       user.Email,
+			Id:             user.ID.String(),
+			PhoneNumber:    user.PhoneNumber,
+			Email:          user.Email,
+			IsActive:       user.IsActive,
+			LimitWorkspace: int32(user.LimitWorkspace),
 		})
 	}
 
@@ -154,9 +116,11 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 	return &oauth.UserResponse{
 		Success: true,
 		Data: &oauth.UserDetail{
-			Id:          user.ID.String(),
-			PhoneNumber: user.PhoneNumber,
-			Email:       user.Email,
+			Id:             user.ID.String(),
+			PhoneNumber:    user.PhoneNumber,
+			Email:          user.Email,
+			IsActive:       user.IsActive,
+			LimitWorkspace: int32(user.LimitWorkspace),
 		},
 		Error: nil,
 	}, nil
@@ -244,5 +208,6 @@ func convertUserParamsToFilter(data *oauth.GetUserByFilterParams) (*repository.F
 		IDs:          userIds,
 		Emails:       data.Emails,
 		PhoneNumbers: data.PhoneNumbers,
+		IsActive:     data.IsActive,
 	}, nil
 }

@@ -7,6 +7,7 @@ import (
 	"oauth-server/app/repository"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -89,7 +90,7 @@ func (r *oAuthRepository) buildFilter(
 		query = query.Scopes(findByText(*filter.Token, "token"))
 	}
 	if filter.UserID != nil {
-		query = query.Scopes(findById(*filter.UserID, "user_id"))
+		query = query.Scopes(findByString[uuid.UUID](*filter.UserID, "user_id"))
 	}
 	if filter.PlatForm != nil {
 		query = query.Scopes(findByText(*filter.PlatForm, "platform"))

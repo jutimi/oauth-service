@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/google/uuid v1.6.0
-	github.com/jutimi/grpc-service v0.0.0-20240725112615-753c0069025b
+	github.com/jutimi/grpc-service v0.0.0-20240725145803-88cff613d7f8
 	google.golang.org/grpc v1.65.0
 )
 

@@ -8,9 +8,15 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func findById(id uuid.UUID, field string) func(db *gorm.DB) *gorm.DB {
+func findByString[T uuid.UUID | string | int](str T, field string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where(fmt.Sprintf("%s = ?", field), id)
+		return db.Where(fmt.Sprintf("%s = ?", field), str)
+	}
+}
+
+func findByBool(data bool, field string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(fmt.Sprintf("%s IS ?", field), data)
 	}
 }
 
