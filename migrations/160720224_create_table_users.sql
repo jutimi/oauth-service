@@ -4,7 +4,8 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE,
     phone_number VARCHAR(20) UNIQUE,
     password TEXT NOT NULL,
-    is_active BOOLEAN DEFAULT true
+    is_active BOOLEAN DEFAULT true,
+    limit_workspace INTEGER DEFAULT 1,
     created_at BIGINT,
     updated_at BIGINT
 );
