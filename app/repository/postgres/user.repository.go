@@ -81,6 +81,7 @@ func (r *userRepository) FindOneByFilter(
 	return data, err
 }
 
+// Find user by using query "AND" condition
 func (r *userRepository) FindByFilter(
 	ctx context.Context,
 	tx *gorm.DB,
@@ -93,6 +94,32 @@ func (r *userRepository) FindByFilter(
 	return data, err
 }
 
+func (r *userRepository) CountByFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindUserByFilter,
+) (int64, error) {
+	var count int64
+	query := r.buildFilter(ctx, tx, filter)
+
+	err := query.Count(&count).Error
+	return count, err
+}
+
+// Find user by using query "OR" condition
+func (r *userRepository) FindExistedByFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindUserByFilter,
+) ([]entity.User, error) {
+	var data []entity.User
+	query := r.buildExistedFilter(ctx, tx, filter)
+
+	err := query.Find(&data).Error
+	return data, err
+}
+
+// -------------------------------------------------------------------------------
 func (r *userRepository) buildFilter(
 	ctx context.Context,
 	tx *gorm.DB,
@@ -123,6 +150,38 @@ func (r *userRepository) buildFilter(
 	}
 	if filter.Limit != nil && filter.Offset != nil {
 		query = query.Scopes(paginate(*filter.Limit, *filter.Offset))
+	}
+
+	return query
+}
+
+func (r *userRepository) buildExistedFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindUserByFilter,
+) *gorm.DB {
+	query := r.db.WithContext(ctx)
+	if tx != nil {
+		query = tx.WithContext(ctx)
+	}
+
+	if filter.Email != nil && *filter.Email != "" {
+		query = query.Scopes(orByText(*filter.Email, "email"))
+	}
+	if filter.PhoneNumber != nil && *filter.PhoneNumber != "" {
+		query = query.Scopes(orByText(*filter.PhoneNumber, "phone_number"))
+	}
+	if filter.ID != nil {
+		query = query.Scopes(orById(*filter.ID, "id"))
+	}
+	if filter.IDs != nil && len(filter.IDs) > 0 {
+		query = query.Scopes(orBySlice(filter.IDs, "id"))
+	}
+	if filter.Emails != nil && len(filter.Emails) > 0 {
+		query = query.Scopes(orBySlice(filter.Emails, "email"))
+	}
+	if filter.PhoneNumbers != nil && len(filter.PhoneNumbers) > 0 {
+		query = query.Scopes(orBySlice(filter.PhoneNumbers, "phone_number"))
 	}
 
 	return query

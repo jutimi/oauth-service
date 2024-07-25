@@ -14,6 +14,7 @@ type UserRepository interface {
 	BulkCreate(ctx context.Context, tx *gorm.DB, users []entity.User) error
 	FindOneByFilter(ctx context.Context, tx *gorm.DB, filter *FindUserByFilter) (*entity.User, error)
 	FindByFilter(ctx context.Context, tx *gorm.DB, filer *FindUserByFilter) ([]entity.User, error)
+	FindExistedByFilter(ctx context.Context, tx *gorm.DB, filter *FindUserByFilter) ([]entity.User, error)
 }
 
 type OAuthRepository interface {

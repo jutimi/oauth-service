@@ -46,7 +46,7 @@ func main() {
 	middleware := middleware.RegisterMiddleware()
 
 	// Run GRPC Server
-	go startGRPCServer(conf, postgresRepo)
+	go startGRPCServer(conf, postgresRepo, helpers)
 
 	// Run gin server
 	gin.SetMode(conf.Server.Mode)
@@ -126,6 +126,7 @@ func startGRPCServer(
 	conf *config.Configuration,
 
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
+	helpers helper.HelperCollections,
 ) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPC.OAuthPort))
 	if err != nil {
@@ -135,8 +136,8 @@ func startGRPCServer(
 	grpcServer := grpc.NewServer(opts...)
 
 	// Register server
-	oauth.RegisterOAuthRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
-	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo))
+	oauth.RegisterOAuthRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo, helpers))
+	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo, helpers))
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Error Init GRPC: %s", err.Error())

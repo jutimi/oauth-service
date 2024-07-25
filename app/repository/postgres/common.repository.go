@@ -31,3 +31,22 @@ func findBySlice[T []uuid.UUID | []string | []int](data T, field string) func(db
 		return db.Where(fmt.Sprintf("%s IN ?", field), data)
 	}
 }
+
+func orById(id uuid.UUID, field string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Or(fmt.Sprintf("%s = ?", field), id)
+	}
+}
+
+func orBySlice[T []uuid.UUID | []string | []int](data T, field string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Or(fmt.Sprintf("%s IN ?", field), data)
+	}
+}
+
+func orByText(text, field string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		searchText := "%" + text + "%"
+		return db.Or(fmt.Sprintf("%s LIKE ?", field), searchText)
+	}
+}

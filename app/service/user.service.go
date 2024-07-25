@@ -2,13 +2,9 @@ package service
 
 import (
 	"context"
-	"oauth-server/app/entity"
 	"oauth-server/app/helper"
 	"oauth-server/app/model"
-	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
-	"oauth-server/package/database"
-	"oauth-server/package/errors"
 )
 
 type userService struct {
@@ -28,29 +24,13 @@ func NewUserService(
 }
 
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
-	// Check user exited
-	existedUser, err := s.postgresRepo.UserRepo.FindByFilter(ctx, nil, &repository.FindUserByFilter{
+	if err := s.helpers.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
 		PhoneNumber: &data.PhoneNumber,
 		Email:       &data.Email,
-	})
-	if err != nil {
-		return nil, errors.New(errors.ErrCodeInternalServerError)
+		Password:    data.Password,
+	}); err != nil {
+		return nil, err
 	}
-	if len(existedUser) > 0 {
-		return nil, errors.New(errors.ErrCodeUserExisted)
-	}
-
-	// Create user
-	tx := database.BeginPostgresTransaction()
-	user := entity.NewUser()
-	user.PhoneNumber = &data.PhoneNumber
-	user.Email = &data.Email
-	user.Password = data.Password
-	if err := s.postgresRepo.UserRepo.Create(ctx, tx, user); err != nil {
-		tx.WithContext(ctx).Rollback()
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
-	tx.WithContext(ctx).Commit()
 
 	return &model.RegisterResponse{}, nil
 }

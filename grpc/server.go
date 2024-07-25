@@ -2,8 +2,10 @@ package server_grpc
 
 import (
 	context "context"
+	"oauth-server/app/helper"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
+	"oauth-server/config"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
@@ -19,6 +21,7 @@ type grpcServer struct {
 	oauth.UnimplementedUserRouteServer
 
 	postgresRepo postgres_repository.PostgresRepositoryCollections
+	helper       helper.HelperCollections
 }
 
 type OAuthServer interface {
@@ -28,9 +31,11 @@ type OAuthServer interface {
 
 func NewGRPCServer(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
+	helper helper.HelperCollections,
 ) OAuthServer {
 	return &grpcServer{
 		postgresRepo: postgresRepo,
+		helper:       helper,
 	}
 }
 
@@ -158,15 +163,51 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 }
 
 func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParams) (*common.SuccessResponse, error) {
-	return nil, nil
+	if err := s.helper.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
+		PhoneNumber: data.PhoneNumber,
+		Email:       data.Email,
+		Password:    data.Password,
+	}); err != nil {
+		cusErr := err.(*errors.CustomError)
+		return &common.SuccessResponse{
+			Success: false,
+			Error:   grpc_utils.FormatErrorResponse(int32(cusErr.GetCode()), cusErr.Error()),
+		}, err
+	}
+
+	return &common.SuccessResponse{Success: true}, nil
 }
 
-func (s *grpcServer) CheckUserPermission(context.Context, *oauth.CheckPermissionParams) (*oauth.CheckPermissionResponse, error) {
-	return nil, nil
+func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
+	conf := config.GetConfiguration().Jwt
+	if _, err := utils.VerifyToken(data.Token, conf.UserAccessTokenKey); err != nil {
+		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	return &oauth.VerifyTokenResponse{Success: true}, nil
 }
 
-func (s *grpcServer) CheckUserWSPermission(context.Context, *oauth.CheckPermissionParams) (*oauth.CheckPermissionResponse, error) {
-	return nil, nil
+func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
+	conf := config.GetConfiguration().Jwt
+	if _, err := utils.VerifyToken(data.Token, conf.WSAccessTokenKey); err != nil {
+		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	return &oauth.VerifyTokenResponse{Success: true}, nil
 }
 
 // ------------------------ Helper ------------------------

@@ -7,15 +7,15 @@ import (
 
 type HelperCollections struct {
 	OauthHelper OauthHelper
+	UserHelper  UserHelper
 }
 
 func RegisterHelpers(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 	clientGRPC client_grpc.ClientGRPCCollection,
 ) HelperCollections {
-	oauthHelper := NewOauthHelper(postgresRepo)
-
 	return HelperCollections{
-		OauthHelper: oauthHelper,
+		OauthHelper: NewOauthHelper(postgresRepo),
+		UserHelper:  NewUserHelper(postgresRepo),
 	}
 }
