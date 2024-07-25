@@ -42,7 +42,7 @@ func NewGRPCServer(
 func (s *grpcServer) GetUserById(ctx context.Context, data *common.GetByIdParams) (*oauth.UserResponse, error) {
 	userId, err := utils.ConvertStringToUUID(data.Id)
 	if err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.UserResponse{
 			Success: false,
 			Data:    nil,
@@ -85,7 +85,7 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 
 	filter, err := convertUserParamsToFilter(data)
 	if err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.UsersResponse{
 			Success: false,
 			Data:    nil,
@@ -98,7 +98,7 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 
 	users, err := s.postgresRepo.UserRepo.FindByFilter(ctx, filter)
 	if err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.UsersResponse{
 			Success: false,
 			Data:    nil,
@@ -127,7 +127,7 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByFilterParams) (*oauth.UserResponse, error) {
 	filter, err := convertUserParamsToFilter(data)
 	if err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.UserResponse{
 			Success: false,
 			Data:    nil,
@@ -181,7 +181,7 @@ func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParam
 func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
 	if _, err := utils.VerifyToken(data.Token, conf.UserAccessTokenKey); err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
@@ -197,7 +197,7 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
 	if _, err := utils.VerifyToken(data.Token, conf.WSAccessTokenKey); err != nil {
-		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
+		customErr := errors.New(errors.ErrCodeInternalServerError)
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
