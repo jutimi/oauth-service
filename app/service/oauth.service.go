@@ -17,18 +17,15 @@ import (
 type oAuthService struct {
 	helpers      helper.HelperCollections
 	postgresRepo postgres_repository.PostgresRepositoryCollections
-	clientGRPC   client_grpc.ClientGRPCCollection
 }
 
 func NewOAuthService(
 	helpers helper.HelperCollections,
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
-	clientGRPC client_grpc.ClientGRPCCollection,
 ) OAuthService {
 	return &oAuthService{
 		helpers:      helpers,
 		postgresRepo: postgresRepo,
-		clientGRPC:   clientGRPC,
 	}
 }
 
@@ -77,6 +74,9 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			AccessToken: accessToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
+		clientGRPC := client_grpc.NewWsClient()
+		defer clientGRPC.CloseConn()
+
 		// Verify refresh token
 		claims, err := utils.VerifyToken(data.RefreshToken, conf.WSRefreshTokenKey)
 		if err != nil {
@@ -98,7 +98,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		// Check user workspace exit
 		id := wsPayload.UserWorkspaceID.String()
 		isActive := true
-		userWS, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		userWS, err := clientGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
 			Id:       &id,
 			IsActive: &isActive,
 		})
@@ -169,6 +169,9 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 			RefreshToken: refreshToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
+		clientGRPC := client_grpc.NewWsClient()
+		defer clientGRPC.CloseConn()
+
 		form, ok := data.(*model.WorkspaceLoginRequest)
 		if !ok {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
@@ -180,7 +183,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 		userId := userPayload.ID.String()
-		userWS, err := s.clientGRPC.WSClient.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		userWS, err := clientGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
 			WorkspaceId: &form.WorkspaceID,
 			UserId:      &userId,
 		})

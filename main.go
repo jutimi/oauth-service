@@ -13,7 +13,6 @@ import (
 	"oauth-server/app/service"
 	"oauth-server/config"
 	server_grpc "oauth-server/grpc"
-	client_grpc "oauth-server/grpc/client"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
 	_validator "oauth-server/package/validator"
@@ -38,11 +37,10 @@ func main() {
 	postgresDB := database.GetPostgres()
 	// mysqlRepo := mysql_repository.RegisterMysqlRepositories(db)
 	postgresRepo := postgres_repository.RegisterPostgresRepositories(postgresDB)
-	clientGRPC := client_grpc.RegisterClientGRPC()
 
 	// Register Others
-	helpers := helper.RegisterHelpers(postgresRepo, clientGRPC)
-	services := service.RegisterServices(helpers, clientGRPC, postgresRepo)
+	helpers := helper.RegisterHelpers(postgresRepo)
+	services := service.RegisterServices(helpers, postgresRepo)
 	middleware := middleware.RegisterMiddleware()
 
 	// Run GRPC Server

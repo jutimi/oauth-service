@@ -21,6 +21,7 @@ type workspaceClient struct {
 type WorkspaceClient interface {
 	GetWorkspaceById(ctx context.Context, data *common.GetByIdParams) (*workspace.WorkspaceResponse, error)
 	GetUserWSByFilter(ctx context.Context, data *workspace.GetUserWorkspaceByFilterParams) (*workspace.UserWorkspaceResponse, error)
+	CloseConn()
 }
 
 func NewWsClient() WorkspaceClient {
