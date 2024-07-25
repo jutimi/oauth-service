@@ -128,7 +128,7 @@ func startGRPCServer(
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 	helpers helper.HelperCollections,
 ) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPC.OAuthPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", conf.GRPC.OAuthPort))
 	if err != nil {
 		panic(err)
 	}
