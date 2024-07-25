@@ -53,7 +53,7 @@ func (s *grpcServer) GetUserById(ctx context.Context, data *common.GetByIdParams
 		}, nil
 	}
 
-	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
 		ID: &userId,
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 		}, nil
 	}
 
-	users, err := s.postgresRepo.UserRepo.FindByFilter(ctx, nil, filter)
+	users, err := s.postgresRepo.UserRepo.FindByFilter(ctx, filter)
 	if err != nil {
 		customErr := errors.NewCustomError(errors.ErrCodeInternalServerError, err.Error())
 		return &oauth.UsersResponse{
@@ -138,7 +138,7 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 		}, nil
 	}
 
-	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, filter)
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, filter)
 	if err != nil {
 		customErr := errors.New(errors.ErrCodeUserNotFound)
 		return &oauth.UserResponse{

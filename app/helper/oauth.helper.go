@@ -15,6 +15,7 @@ import (
 
 	"github.com/jutimi/grpc-service/workspace"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type oauthHelper struct {
@@ -110,7 +111,7 @@ func (h *oauthHelper) GenerateWSToken(userWS *workspace.UserWorkspaceDetail, tok
 
 func (h *oauthHelper) ValidateRefreshToken(ctx context.Context, data *ValidateRefreshTokenParams) error {
 	// Check user oauth
-	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilter(ctx, &repository.FindOAuthByFilter{
 		Token: &data.RefreshToken,
 		Scope: &data.Scope,
 	})
@@ -130,32 +131,53 @@ func (h *oauthHelper) ValidateRefreshToken(ctx context.Context, data *ValidateRe
 }
 
 func (h *oauthHelper) DeActiveToken(ctx context.Context, data *DeActiveTokenParams) error {
+	// Deactivate User OAuth
+	tx := database.BeginPostgresTransaction()
+	if tx.Error != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
+
 	// Find User OAuth
-	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilter(ctx, nil, &repository.FindOAuthByFilter{
+	filter := &repository.FindOAuthByFilter{
 		Token: &data.Token,
 		Scope: &data.Scope,
+	}
+	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilterForUpdate(ctx, &repository.FindByFilterForUpdateParams{
+		Filter:     filter,
+		LockOption: clause.LockingOptionsNoWait,
+		Tx:         tx,
 	})
 	if err != nil {
 		return errors.New(errors.ErrCodeInternalServerError)
 	}
 
-	// Deactivate User OAuth
-	tx := database.BeginPostgresTransaction()
 	userOAuth.Status = entity.OAuthStatusInactive
 	if err := h.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
-		tx.WithContext(ctx).Rollback()
+		tx.Rollback()
 		return errors.New(errors.ErrCodeInternalServerError)
 	}
-	tx.WithContext(ctx).Commit()
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
 
 	return nil
 }
 
 func (h *oauthHelper) ActiveToken(ctx context.Context, data *ActiveTokenParams) error {
 	tx := database.BeginPostgresTransaction()
-	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilter(ctx, tx, &repository.FindOAuthByFilter{
+	if tx.Error != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
+
+	filter := &repository.FindOAuthByFilter{
 		UserID: &data.UserID,
 		Scope:  &data.Scope,
+	}
+	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilterForUpdate(ctx, &repository.FindByFilterForUpdateParams{
+		Filter:     filter,
+		LockOption: clause.LockingOptionsNoWait,
+		Tx:         tx,
 	})
 	if err == gorm.ErrRecordNotFound {
 		userOAuth = entity.NewOAuth()
@@ -167,10 +189,13 @@ func (h *oauthHelper) ActiveToken(ctx context.Context, data *ActiveTokenParams) 
 	userOAuth.ExpireAt = time.Now().Add(time.Duration(data.TokenIAT) * time.Second).Unix()
 	userOAuth.LoginAt = time.Now().Unix()
 	if err := h.postgresRepo.OAuthRepo.Update(ctx, tx, userOAuth); err != nil {
-		tx.WithContext(ctx).Rollback()
+		tx.Rollback()
 		return errors.New(errors.ErrCodeInternalServerError)
 	}
-	tx.WithContext(ctx).Commit()
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
 
 	return nil
 }

@@ -71,11 +71,10 @@ func (r *userRepository) BulkCreate(
 
 func (r *userRepository) FindOneByFilter(
 	ctx context.Context,
-	tx *gorm.DB,
 	filter *repository.FindUserByFilter,
 ) (*entity.User, error) {
 	var data *entity.User
-	query := r.buildFilter(ctx, tx, filter)
+	query := r.buildFilter(ctx, nil, filter)
 
 	err := query.First(&data).Error
 	return data, err
@@ -84,11 +83,10 @@ func (r *userRepository) FindOneByFilter(
 // Find user by using query "AND" condition
 func (r *userRepository) FindByFilter(
 	ctx context.Context,
-	tx *gorm.DB,
 	filer *repository.FindUserByFilter,
 ) ([]entity.User, error) {
 	var data []entity.User
-	query := r.buildFilter(ctx, tx, filer)
+	query := r.buildFilter(ctx, nil, filer)
 
 	err := query.Find(&data).Error
 	return data, err
@@ -96,11 +94,10 @@ func (r *userRepository) FindByFilter(
 
 func (r *userRepository) CountByFilter(
 	ctx context.Context,
-	tx *gorm.DB,
 	filter *repository.FindUserByFilter,
 ) (int64, error) {
 	var count int64
-	query := r.buildFilter(ctx, tx, filter)
+	query := r.buildFilter(ctx, nil, filter)
 
 	err := query.Count(&count).Error
 	return count, err
@@ -109,11 +106,10 @@ func (r *userRepository) CountByFilter(
 // Find user by using query "OR" condition
 func (r *userRepository) FindExistedByFilter(
 	ctx context.Context,
-	tx *gorm.DB,
 	filter *repository.FindUserByFilter,
 ) ([]entity.User, error) {
 	var data []entity.User
-	query := r.buildExistedFilter(ctx, tx, filter)
+	query := r.buildExistedFilter(ctx, nil, filter)
 
 	err := query.Find(&data).Error
 	return data, err

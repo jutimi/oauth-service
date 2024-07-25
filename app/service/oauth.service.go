@@ -60,7 +60,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		}
 
 		// Check user exit
-		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
+		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
 			ID: &userPayload.ID,
 		})
 		if err != nil {
@@ -134,7 +134,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Check user exit
-		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, nil, &repository.FindUserByFilter{
+		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
 			PhoneNumber: &form.PhoneNumber,
 			Email:       &form.Email,
 		})

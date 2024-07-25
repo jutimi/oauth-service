@@ -2,6 +2,7 @@ package postgres_repository
 
 import (
 	"context"
+	"errors"
 	"oauth-server/app/entity"
 	"oauth-server/app/repository"
 	"time"
@@ -47,14 +48,41 @@ func (r *oAuthRepository) Update(
 
 func (r *oAuthRepository) FindOneByFilter(
 	ctx context.Context,
-	tx *gorm.DB,
 	filter *repository.FindOAuthByFilter,
 ) (*entity.Oauth, error) {
 	var data *entity.Oauth
+	query := r.buildFilter(ctx, nil, filter)
 
-	query := r.db.WithContext(ctx).Debug()
+	err := query.First(&data).Error
+	return data, err
+}
+
+func (r *oAuthRepository) FindOneByFilterForUpdate(
+	ctx context.Context,
+	data *repository.FindByFilterForUpdateParams,
+) (*entity.Oauth, error) {
+	filter, ok := data.Filter.(*repository.FindOAuthByFilter)
+	if !ok {
+		return nil, errors.New("invalid argument")
+	}
+
+	var oauth *entity.Oauth
+	query := r.buildFilter(ctx, data.Tx, filter)
+	query = buildLockQuery(query, data.LockOption)
+
+	err := query.First(&oauth).Error
+	return oauth, err
+}
+
+// -------------------------------------------------------------------------------
+func (r *oAuthRepository) buildFilter(
+	ctx context.Context,
+	tx *gorm.DB,
+	filter *repository.FindOAuthByFilter,
+) *gorm.DB {
+	query := r.db.WithContext(ctx)
 	if tx != nil {
-		query = tx.WithContext(ctx).Debug()
+		query = tx.WithContext(ctx)
 	}
 
 	if filter.Token != nil {
@@ -67,6 +95,5 @@ func (r *oAuthRepository) FindOneByFilter(
 		query = query.Scopes(findByText(*filter.PlatForm, "platform"))
 	}
 
-	err := query.First(&data).Error
-	return data, err
+	return query
 }

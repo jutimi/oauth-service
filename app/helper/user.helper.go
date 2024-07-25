@@ -26,7 +26,7 @@ func (h *userHelper) CreateUser(
 	data *CreateUserParams,
 ) error {
 	// Check user exited
-	existedUser, err := h.postgresRepo.UserRepo.FindExistedByFilter(ctx, nil, &repository.FindUserByFilter{
+	existedUser, err := h.postgresRepo.UserRepo.FindExistedByFilter(ctx, &repository.FindUserByFilter{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
 	})
@@ -39,15 +39,22 @@ func (h *userHelper) CreateUser(
 
 	// Create user
 	tx := database.BeginPostgresTransaction()
+	if tx.Error != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
+
 	user := entity.NewUser()
 	user.PhoneNumber = data.PhoneNumber
 	user.Email = data.Email
 	user.Password = data.Password
 	if err := h.postgresRepo.UserRepo.Create(ctx, tx, user); err != nil {
-		tx.WithContext(ctx).Rollback()
+		tx.Rollback()
 		return errors.New(errors.ErrCodeInternalServerError)
 	}
-	tx.WithContext(ctx).Commit()
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New(errors.ErrCodeInternalServerError)
+	}
 
 	return nil
 }
