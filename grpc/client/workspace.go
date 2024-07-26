@@ -6,7 +6,6 @@ import (
 	"oauth-server/config"
 	"oauth-server/package/errors"
 
-	"github.com/jutimi/grpc-service/common"
 	"github.com/jutimi/grpc-service/workspace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -19,7 +18,7 @@ type workspaceClient struct {
 }
 
 type WorkspaceClient interface {
-	GetWorkspaceById(ctx context.Context, data *common.GetByIdParams) (*workspace.WorkspaceResponse, error)
+	GetWorkspaceByFilter(ctx context.Context, data *workspace.GetWorkspaceByFilterParams) (*workspace.WorkspaceResponse, error)
 	GetUserWSByFilter(ctx context.Context, data *workspace.GetUserWorkspaceByFilterParams) (*workspace.UserWorkspaceResponse, error)
 	CloseConn()
 }
@@ -45,11 +44,11 @@ func NewWsClient() WorkspaceClient {
 	}
 }
 
-func (c *workspaceClient) GetWorkspaceById(
+func (c *workspaceClient) GetWorkspaceByFilter(
 	ctx context.Context,
-	data *common.GetByIdParams,
+	data *workspace.GetWorkspaceByFilterParams,
 ) (*workspace.WorkspaceResponse, error) {
-	resp, err := c.wsClient.GetWorkspaceById(ctx, data)
+	resp, err := c.wsClient.GetWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}

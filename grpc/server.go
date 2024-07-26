@@ -6,11 +6,13 @@ import (
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/config"
+	client_grpc "oauth-server/grpc/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
 	"github.com/jutimi/grpc-service/oauth"
 	grpc_utils "github.com/jutimi/grpc-service/utils"
+	"github.com/jutimi/grpc-service/workspace"
 
 	"github.com/google/uuid"
 )
@@ -155,8 +157,45 @@ func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParam
 
 func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
-	if _, err := utils.VerifyToken(data.Token, conf.UserAccessTokenKey); err != nil {
-		customErr := errors.New(errors.ErrCodeInternalServerError)
+	customErr := errors.New(errors.ErrCodeInternalServerError)
+
+	payload, err := utils.VerifyToken(data.Token, conf.UserAccessTokenKey)
+	if err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	userPayload, ok := payload.(utils.UserPayload)
+	if !ok {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
+		ID: &userPayload.ID,
+	})
+	if err != nil {
+		customErr = errors.New(errors.ErrCodeUserNotFound)
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+	if !user.IsActive {
+		customErr = errors.New(errors.ErrCodeUserDeactivated)
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
@@ -171,14 +210,74 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 
 func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
-	if _, err := utils.VerifyToken(data.Token, conf.WSAccessTokenKey); err != nil {
-		customErr := errors.New(errors.ErrCodeInternalServerError)
+	customErr := errors.New(errors.ErrCodeInternalServerError)
+
+	payload, err := utils.VerifyToken(data.Token, conf.WSAccessTokenKey)
+	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
 				int32(customErr.GetCode()),
 				customErr.Error(),
 			),
+		}, nil
+	}
+
+	wsPayload, ok := payload.(utils.WorkspacePayload)
+	if !ok {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	userWSId := wsPayload.UserWorkspaceID.String()
+	wsId := wsPayload.WorkspaceID.String()
+	isActive := true
+	wsGRPC := client_grpc.NewWsClient()
+	defer wsGRPC.CloseConn()
+
+	// Check workspace data
+	ws, err := wsGRPC.GetWorkspaceByFilter(ctx, &workspace.GetWorkspaceByFilterParams{
+		Id:       &wsId,
+		IsActive: &isActive,
+	})
+	if err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+	if ws.Error != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error:   ws.Error,
+		}, nil
+	}
+	// Check user workspace data
+	userWS, err := wsGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		Id:       &userWSId,
+		IsActive: &isActive,
+	})
+	if err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+	if userWS.Error != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error:   userWS.Error,
 		}, nil
 	}
 

@@ -25,8 +25,9 @@ const (
 	ErrCodeValidatorVerifiedData = 3
 	ErrCodeMethodNotSupported    = 4
 
-	ErrCodeUserNotFound = 10
-	ErrCodeUserExisted  = 11
+	ErrCodeUserNotFound    = 10
+	ErrCodeUserExisted     = 11
+	ErrCodeUserDeactivated = 12
 
 	ErrCodeTokenExpired      = 20
 	ErrCodeIncorrectPassword = 21
@@ -72,6 +73,9 @@ var messages = map[int]map[string]string{
 	},
 	ErrCodeUserExisted: {
 		LangVN: "Người dùng đã đăng ký tài khoản. Vui lòng kiểm tra lại",
+	},
+	ErrCodeUserDeactivated: {
+		LangVN: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin để hỗ trợ",
 	},
 
 	// OAuth Error
