@@ -9,7 +9,6 @@ import (
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
-	"github.com/jutimi/grpc-service/common"
 	"github.com/jutimi/grpc-service/oauth"
 	grpc_utils "github.com/jutimi/grpc-service/utils"
 
@@ -126,20 +125,32 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 	}, nil
 }
 
-func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParams) (*common.SuccessResponse, error) {
-	if err := s.helper.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
+func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParams) (*oauth.UserResponse, error) {
+	user, err := s.helper.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
 		Password:    data.Password,
-	}); err != nil {
+	})
+	if err != nil {
 		cusErr := err.(*errors.CustomError)
-		return &common.SuccessResponse{
+		return &oauth.UserResponse{
 			Success: false,
 			Error:   grpc_utils.FormatErrorResponse(int32(cusErr.GetCode()), cusErr.Error()),
+			Data:    nil,
 		}, err
 	}
 
-	return &common.SuccessResponse{Success: true}, nil
+	return &oauth.UserResponse{
+		Success: true,
+		Error:   nil,
+		Data: &oauth.UserDetail{
+			Id:             user.ID.String(),
+			PhoneNumber:    user.PhoneNumber,
+			Email:          user.Email,
+			IsActive:       user.IsActive,
+			LimitWorkspace: int32(user.LimitWorkspace),
+		},
+	}, nil
 }
 
 func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
@@ -172,6 +183,44 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 	}
 
 	return &oauth.VerifyTokenResponse{Success: true}, nil
+}
+
+func (s *grpcServer) BulkCreateUsers(ctx context.Context, data *oauth.CreateUsersParams) (*oauth.UsersResponse, error) {
+	params := make([]helper.CreateUserParams, 0)
+	usersRes := make([]*oauth.UserDetail, 0)
+
+	for _, user := range data.Users {
+		params = append(params, helper.CreateUserParams{
+			PhoneNumber: user.PhoneNumber,
+			Email:       user.Email,
+			Password:    user.Password,
+		})
+	}
+
+	users, err := s.helper.UserHelper.CreateUsers(ctx, params)
+	if err != nil {
+		cusErr := err.(*errors.CustomError)
+		return &oauth.UsersResponse{
+			Success: false,
+			Error:   grpc_utils.FormatErrorResponse(int32(cusErr.GetCode()), cusErr.Error()),
+			Data:    nil,
+		}, err
+	}
+	for _, user := range users {
+		usersRes = append(usersRes, &oauth.UserDetail{
+			Id:             user.ID.String(),
+			PhoneNumber:    user.PhoneNumber,
+			Email:          user.Email,
+			IsActive:       user.IsActive,
+			LimitWorkspace: int32(user.LimitWorkspace),
+		})
+	}
+
+	return &oauth.UsersResponse{
+		Success: true,
+		Error:   nil,
+		Data:    usersRes,
+	}, nil
 }
 
 // ------------------------ Helper ------------------------
