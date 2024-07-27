@@ -14,3 +14,7 @@ type OAuthService interface {
 	Login(ctx context.Context, data interface{}) (interface{}, error)
 	Logout(ctx context.Context, data interface{}) (interface{}, error)
 }
+
+type PermissionService interface {
+	AddUserWSPermission(ctx context.Context, data *model.AddUserWSPermissionRequest) (*model.AddUserWSPermissionResponse, error)
+}

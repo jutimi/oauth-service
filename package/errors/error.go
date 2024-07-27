@@ -32,6 +32,9 @@ const (
 	ErrCodeTokenExpired      = 20
 	ErrCodeIncorrectPassword = 21
 
+	ErrCodePermissionNotFound       = 30
+	ErrCodePermissionActionNotFound = 31
+
 	ErrCodeInternalServerError = 500
 	ErrCodeTimeout             = 408
 	ErrCodeForbidden           = 403
@@ -84,6 +87,14 @@ var messages = map[int]map[string]string{
 	},
 	ErrCodeIncorrectPassword: {
 		LangVN: "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại",
+	},
+
+	// Permission Error
+	ErrCodePermissionNotFound: {
+		LangVN: "Không tìm thấy quyền. Vui loại kiểm tra lại",
+	},
+	ErrCodePermissionActionNotFound: {
+		LangVN: "Không tìm hành động của quyền. Vui loại kiểm tra lại",
 	},
 }
 

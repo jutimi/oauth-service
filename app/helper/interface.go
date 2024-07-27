@@ -19,3 +19,8 @@ type UserHelper interface {
 	CreateUser(ctx context.Context, data *CreateUserParams) (*entity.User, error)
 	CreateUsers(ctx context.Context, data []CreateUserParams) ([]entity.User, error)
 }
+
+type PermissionHelper interface {
+	ValidatePermission(permission string) error
+	GetPermissions(permission string) map[string]bool
+}

@@ -23,3 +23,11 @@ type OAuthRepository interface {
 	FindOneByFilter(ctx context.Context, filter *FindOAuthByFilter) (*entity.Oauth, error)
 	FindOneByFilterForUpdate(ctx context.Context, data *FindByFilterForUpdateParams) (*entity.Oauth, error)
 }
+
+type PermissionRepository interface {
+	Create(ctx context.Context, tx *gorm.DB, data *entity.Permission) error
+	Update(ctx context.Context, tx *gorm.DB, data *entity.Permission) error
+	Delete(ctx context.Context, tx *gorm.DB, data *entity.Permission) error
+	BulkCreate(ctx context.Context, tx *gorm.DB, data []entity.Permission) error
+	FindOneByFilter(ctx context.Context, filer *FindPermissionByFilter) (*entity.Permission, error)
+}

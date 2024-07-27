@@ -29,3 +29,9 @@ type FindByFilterForUpdateParams struct {
 	LockOption string
 	Tx         *gorm.DB
 }
+
+type FindPermissionByFilter struct {
+	WorkspaceID     *uuid.UUID
+	UserWorkspaceID *uuid.UUID
+	UserID          *uuid.UUID
+}
