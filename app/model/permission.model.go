@@ -53,3 +53,8 @@ type AddUserWSPermissionRequest struct {
 	Permissions     []string  `json:"permissions" validate:"required"`
 }
 type AddUserWSPermissionResponse struct{}
+
+type RevokeUserWSPermissionRequest struct {
+	UserWorkspaceId uuid.UUID `json:"user_workspace_id" validate:"required,uuid"`
+}
+type RevokeUserWSPermissionResponse struct{}

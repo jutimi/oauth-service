@@ -81,6 +81,17 @@ func (r *permissionRepository) FindOneByFilter(
 	return data, err
 }
 
+func (r *permissionRepository) FindByFilter(
+	ctx context.Context,
+	filter *repository.FindPermissionByFilter,
+) ([]entity.Permission, error) {
+	var data []entity.Permission
+	query := r.buildFilter(ctx, nil, filter)
+
+	err := query.Find(&data).Error
+	return data, err
+}
+
 // -------------------------------------------------------------------------------
 func (r *permissionRepository) buildFilter(
 	ctx context.Context,

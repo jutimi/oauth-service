@@ -30,4 +30,5 @@ type PermissionRepository interface {
 	Delete(ctx context.Context, tx *gorm.DB, data *entity.Permission) error
 	BulkCreate(ctx context.Context, tx *gorm.DB, data []entity.Permission) error
 	FindOneByFilter(ctx context.Context, filer *FindPermissionByFilter) (*entity.Permission, error)
+	FindByFilter(ctx context.Context, filer *FindPermissionByFilter) ([]entity.Permission, error)
 }
