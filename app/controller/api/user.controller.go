@@ -13,12 +13,12 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-type accountHandler struct {
+type userHandler struct {
 	services service.ServiceCollections
 }
 
 func NewApiUserController(router *gin.Engine, services service.ServiceCollections) {
-	handler := accountHandler{services}
+	handler := userHandler{services}
 
 	group := router.Group("api/v1/users")
 	{
@@ -26,7 +26,7 @@ func NewApiUserController(router *gin.Engine, services service.ServiceCollection
 	}
 }
 
-func (h *accountHandler) register(c *gin.Context) {
+func (h *userHandler) register(c *gin.Context) {
 	var data model.RegisterRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)

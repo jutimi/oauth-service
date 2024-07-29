@@ -23,4 +23,5 @@ type UserHelper interface {
 type PermissionHelper interface {
 	ValidatePermission(permission string) error
 	GetPermissions(permission string) map[string]bool
+	GetURLPermission(resource, action string) (string, error)
 }

@@ -6,19 +6,18 @@ import (
 )
 
 type ServiceCollections struct {
-	UserSvc  UserService
-	OAuthSvc OAuthService
+	UserSvc       UserService
+	OAuthSvc      OAuthService
+	PermissionSvc PermissionService
 }
 
 func RegisterServices(
 	helpers helper.HelperCollections,
 	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) ServiceCollections {
-	userSvc := NewUserService(helpers, postgresRepo)
-	oauthSvc := NewOAuthService(helpers, postgresRepo)
-
 	return ServiceCollections{
-		UserSvc:  userSvc,
-		OAuthSvc: oauthSvc,
+		UserSvc:       NewUserService(helpers, postgresRepo),
+		OAuthSvc:      NewOAuthService(helpers, postgresRepo),
+		PermissionSvc: NewPermissionService(helpers, postgresRepo),
 	}
 }

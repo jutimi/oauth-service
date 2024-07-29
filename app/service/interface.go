@@ -18,4 +18,5 @@ type OAuthService interface {
 type PermissionService interface {
 	AddUserWSPermission(ctx context.Context, data *model.AddUserWSPermissionRequest) (*model.AddUserWSPermissionResponse, error)
 	RevokeUserWSPermission(ctx context.Context, data *model.RevokeUserWSPermissionRequest) (*model.RevokeUserWSPermissionResponse, error)
+	GetPermissions(ctx context.Context) (*model.GetPermissionsResponse, error)
 }

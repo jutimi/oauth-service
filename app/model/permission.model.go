@@ -13,23 +13,17 @@ const (
 )
 
 const (
-	PERMISSION_READ   = "list"
+	PERMISSION_READ   = "get"
 	PERMISSION_CREATE = "create"
 	PERMISSION_UPDATE = "update"
 	PERMISSION_DELETE = "delete"
+	PERMISSION_BYPASS = "bypass"
 )
 
-var PERMISSION_RESOURCE = []string{
+var PERMISSION_RESOURCES = []string{
 	USER_WORKSPACE_PERMISSION,
 	ORGANIZATION_PERMISSION,
 	SHIFT_PERMISSION,
-}
-
-var PERMISSION_ACTION = []string{
-	PERMISSION_READ,
-	PERMISSION_CREATE,
-	PERMISSION_UPDATE,
-	PERMISSION_DELETE,
 }
 
 var PERMISSION_TREE = map[string]map[string][]string{
@@ -71,3 +65,11 @@ type RevokeUserWSPermissionRequest struct {
 	UserWorkspaceId uuid.UUID `json:"user_workspace_id" validate:"required,uuid"`
 }
 type RevokeUserWSPermissionResponse struct{}
+
+type GetPermissionsResponse struct {
+	Permissions []PermissionDetail `json:"permissions"`
+}
+type PermissionDetail struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}

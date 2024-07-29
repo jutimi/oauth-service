@@ -4,6 +4,7 @@ import (
 	"oauth-server/app/model"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/package/errors"
+	"oauth-server/utils"
 	"strings"
 )
 
@@ -70,4 +71,23 @@ func (h *permissionHelper) GetPermissions(permission string) map[string]bool {
 	}
 
 	return result
+}
+
+func (h *permissionHelper) GetURLPermission(resource, action string) (string, error) {
+	if !utils.InSlice(resource, model.PERMISSION_RESOURCES) {
+		return "", errors.New(errors.ErrCodeForbidden)
+	}
+
+	switch action {
+	case "list", "detail":
+		return model.PERMISSION_READ + "_" + action, nil
+	case "create":
+		return model.PERMISSION_CREATE + "_" + action, nil
+	case "update":
+		return model.PERMISSION_UPDATE + "_" + action, nil
+	case "delete":
+		return model.PERMISSION_DELETE + "_" + action, nil
+	default:
+		return "", errors.New(errors.ErrCodeForbidden)
+	}
 }

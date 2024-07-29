@@ -112,6 +112,10 @@ func (r *permissionRepository) buildFilter(
 	if filter.UserWorkspaceID != nil {
 		query = query.Scopes(findByString[uuid.UUID](*filter.UserWorkspaceID, "user_workspace_id"))
 	}
+	if filter.Permission != nil && *filter.Permission != "" {
+		searchText := "%/" + *filter.Permission + "/%"
+		query = query.Where("permission LIKE ?", searchText)
+	}
 
 	return query
 }

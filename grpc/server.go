@@ -277,8 +277,7 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 }
 
 func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
-	customErr := errors.New(errors.ErrCodeUnauthorized)
-
+	customErr := errors.New(errors.ErrCodeForbidden)
 	payload, err := utils.ParseWSToken(data.Token)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
@@ -290,15 +289,38 @@ func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyP
 		}, nil
 	}
 
-	//
 	url := strings.Split(data.GetUrl(), "/")
+	urlType := url[3]
 	resource := url[5]
 	action := url[6]
+	if urlType == utils.URL_TYPE_API {
+		return &oauth.VerifyTokenResponse{Success: true}, nil
+	}
+
+	permission, err := s.helper.PermissionHelper.GetURLPermission(resource, action)
+	if err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(err.(*errors.CustomError).GetCode()),
+				err.(*errors.CustomError).Error(),
+			),
+		}, nil
+	}
 
 	// Check user permission
-	permission, err := s.postgresRepo.PermissionRepo.FindOneByFilter(ctx, &repository.FindPermissionByFilter{
-		WorkspaceID: &payload.WorkspaceID,
-	})
+	if _, err := s.postgresRepo.PermissionRepo.FindOneByFilter(ctx, &repository.FindPermissionByFilter{
+		UserWorkspaceID: &payload.UserWorkspaceID,
+		Permission:      &permission,
+	}); err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
 
 	return &oauth.VerifyTokenResponse{Success: true}, nil
 }

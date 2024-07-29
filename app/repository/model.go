@@ -34,4 +34,5 @@ type FindPermissionByFilter struct {
 	WorkspaceID     *uuid.UUID
 	UserWorkspaceID *uuid.UUID
 	UserID          *uuid.UUID
+	Permission      *string
 }

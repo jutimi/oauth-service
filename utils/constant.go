@@ -34,6 +34,11 @@ const (
 )
 
 const (
+	URL_TYPE_API = "api"
+	URL_TYPE_CMS = "cms"
+)
+
+const (
 	USER_SCOPE           = "user"
 	WORKSPACE_SCOPE      = "workspace"
 	USER_WORKSPACE_SCOPE = "user_workspace"

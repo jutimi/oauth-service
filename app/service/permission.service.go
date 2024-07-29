@@ -17,13 +17,13 @@ import (
 )
 
 type permissionService struct {
-	postgresRepo postgres_repository.PostgresRepositoryCollections
 	helpers      helper.HelperCollections
+	postgresRepo postgres_repository.PostgresRepositoryCollections
 }
 
 func NewPermissionService(
-	postgresRepo postgres_repository.PostgresRepositoryCollections,
 	helpers helper.HelperCollections,
+	postgresRepo postgres_repository.PostgresRepositoryCollections,
 ) PermissionService {
 	return &permissionService{
 		postgresRepo: postgresRepo,
@@ -105,4 +105,23 @@ func (s *permissionService) RevokeUserWSPermission(
 	}
 
 	return &model.RevokeUserWSPermissionResponse{}, nil
+}
+
+func (s *permissionService) GetPermissions(
+	ctx context.Context,
+) (*model.GetPermissionsResponse, error) {
+	permissions := make([]model.PermissionDetail, 0)
+
+	for permissionName, permission := range model.PERMISSION_TREE {
+		for action, _ := range permission {
+			permissions = append(permissions, model.PermissionDetail{
+				Name: fmt.Sprintf("%s_%s", action, permissionName),
+				Key:  fmt.Sprintf("%s_%s", action, permissionName),
+			})
+		}
+	}
+
+	return &model.GetPermissionsResponse{
+		Permissions: permissions,
+	}, nil
 }
