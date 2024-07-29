@@ -9,6 +9,7 @@ import (
 	client_grpc "oauth-server/grpc/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
+	"strings"
 
 	"github.com/jutimi/grpc-service/oauth"
 	grpc_utils "github.com/jutimi/grpc-service/utils"
@@ -181,21 +182,12 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 		}, nil
 	}
 
-	user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-		ID: &userPayload.ID,
-	})
-	if err != nil {
+	isActive := true
+	if _, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
+		ID:       &userPayload.ID,
+		IsActive: &isActive,
+	}); err != nil {
 		customErr = errors.New(errors.ErrCodeUserNotFound)
-		return &oauth.VerifyTokenResponse{
-			Success: false,
-			Error: grpc_utils.FormatErrorResponse(
-				int32(customErr.GetCode()),
-				customErr.Error(),
-			),
-		}, nil
-	}
-	if !user.IsActive {
-		customErr = errors.New(errors.ErrCodeUserDeactivated)
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
@@ -280,6 +272,33 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 			Error:   userWS.Error,
 		}, nil
 	}
+
+	return &oauth.VerifyTokenResponse{Success: true}, nil
+}
+
+func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
+	customErr := errors.New(errors.ErrCodeUnauthorized)
+
+	payload, err := utils.ParseWSToken(data.Token)
+	if err != nil {
+		return &oauth.VerifyTokenResponse{
+			Success: false,
+			Error: grpc_utils.FormatErrorResponse(
+				int32(customErr.GetCode()),
+				customErr.Error(),
+			),
+		}, nil
+	}
+
+	//
+	url := strings.Split(data.GetUrl(), "/")
+	resource := url[5]
+	action := url[6]
+
+	// Check user permission
+	permission, err := s.postgresRepo.PermissionRepo.FindOneByFilter(ctx, &repository.FindPermissionByFilter{
+		WorkspaceID: &payload.WorkspaceID,
+	})
 
 	return &oauth.VerifyTokenResponse{Success: true}, nil
 }

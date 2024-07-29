@@ -73,3 +73,18 @@ func VerifyToken(tokenString string, key string) (interface{}, error) {
 
 	return token, nil
 }
+
+func ParseWSToken(tokenString string) (*WorkspacePayload, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &WorkspacePayload{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(""), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*WorkspacePayload); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, jwt.ErrTokenMalformed
+}

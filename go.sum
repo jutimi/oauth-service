@@ -85,6 +85,10 @@ github.com/jutimi/grpc-service v0.0.0-20240726160144-896f53d6fdca h1:kYwef0O+n1b
 github.com/jutimi/grpc-service v0.0.0-20240726160144-896f53d6fdca/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
 github.com/jutimi/grpc-service v0.0.0-20240727165551-82db4ed284b0 h1:/VKkl1FsdeoJg4A4vIZPgGOlyGvj6ROKKDv7vQbOXlo=
 github.com/jutimi/grpc-service v0.0.0-20240727165551-82db4ed284b0/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
+github.com/jutimi/grpc-service v0.0.0-20240729091740-b892d8902967 h1:mPhJLec0QyeJaPwGz/d4ybv58KDKH7GaHSqgFfaRuVg=
+github.com/jutimi/grpc-service v0.0.0-20240729091740-b892d8902967/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
+github.com/jutimi/grpc-service v0.0.0-20240729102354-75656f5e0067 h1:mngJBkUknOcL9Mb0VBxIyZNu783uDuZa5h778wFq6As=
+github.com/jutimi/grpc-service v0.0.0-20240729102354-75656f5e0067/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.2.7 h1:ZWSB3igEs+d0qvnxR/ZBzXVmxkgt8DdzP6m9pfuVLDM=
 github.com/klauspost/cpuid/v2 v2.2.7/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=
