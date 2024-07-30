@@ -2,6 +2,7 @@ package controller
 
 import (
 	"oauth-server/app/controller/api"
+	"oauth-server/app/controller/cms"
 	"oauth-server/app/middleware"
 	"oauth-server/app/service"
 
@@ -15,4 +16,6 @@ func RegisterControllers(
 ) {
 	api.NewApiUserController(router, services)
 	api.NewApiOAuthController(router, services, middleware)
+
+	cms.NewApiPermissionController(router, services)
 }
