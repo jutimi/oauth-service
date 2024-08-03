@@ -12,7 +12,7 @@ import (
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/app/service"
 	"oauth-server/config"
-	server_grpc "oauth-server/grpc"
+	"oauth-server/external/server"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
 	_validator "oauth-server/package/validator"
@@ -134,8 +134,8 @@ func startGRPCServer(
 	grpcServer := grpc.NewServer(opts...)
 
 	// Register server
-	oauth.RegisterOAuthRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo, helpers))
-	oauth.RegisterUserRouteServer(grpcServer, server_grpc.NewGRPCServer(postgresRepo, helpers))
+	oauth.RegisterOAuthRouteServer(grpcServer, server.NewGRPCServer(postgresRepo, helpers))
+	oauth.RegisterUserRouteServer(grpcServer, server.NewGRPCServer(postgresRepo, helpers))
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Error Init GRPC: %s", err.Error())

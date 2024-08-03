@@ -1,4 +1,4 @@
-package server_grpc
+package server
 
 import (
 	context "context"
@@ -6,7 +6,7 @@ import (
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/config"
-	client_grpc "oauth-server/grpc/client"
+	"oauth-server/external/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 	"strings"
@@ -229,7 +229,7 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 	userWSId := wsPayload.UserWorkspaceID.String()
 	wsId := wsPayload.WorkspaceID.String()
 	isActive := true
-	wsGRPC := client_grpc.NewWsClient()
+	wsGRPC := client.NewWsClient()
 	defer wsGRPC.CloseConn()
 
 	// Check workspace data

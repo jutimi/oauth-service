@@ -7,7 +7,7 @@ import (
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/config"
-	client_grpc "oauth-server/grpc/client"
+	"oauth-server/external/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
@@ -74,7 +74,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			AccessToken: accessToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
-		clientGRPC := client_grpc.NewWsClient()
+		clientGRPC := client.NewWsClient()
 		defer clientGRPC.CloseConn()
 
 		// Verify refresh token
@@ -169,7 +169,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 			RefreshToken: refreshToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
-		clientGRPC := client_grpc.NewWsClient()
+		clientGRPC := client.NewWsClient()
 		defer clientGRPC.CloseConn()
 
 		form, ok := data.(*model.WorkspaceLoginRequest)

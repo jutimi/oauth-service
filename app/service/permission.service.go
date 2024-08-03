@@ -9,7 +9,7 @@ import (
 	"oauth-server/app/model"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
-	client_grpc "oauth-server/grpc/client"
+	"oauth-server/external/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
@@ -36,7 +36,7 @@ func (s *permissionService) AddUserWSPermission(
 	data *model.AddUserWSPermissionRequest,
 ) (*model.AddUserWSPermissionResponse, error) {
 	// Get user workspace data
-	clientGRPC := client_grpc.NewWsClient()
+	clientGRPC := client.NewWsClient()
 	defer clientGRPC.CloseConn()
 
 	userWSId := data.UserWorkspaceId.String()

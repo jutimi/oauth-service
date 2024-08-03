@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"net/http"
-	client_grpc "oauth-server/grpc/client"
+	"oauth-server/external/client"
 	"oauth-server/package/errors"
 	"oauth-server/utils"
 
@@ -26,7 +26,7 @@ func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		clientGRPC := client_grpc.NewWsClient()
+		clientGRPC := client.NewWsClient()
 		defer clientGRPC.CloseConn()
 
 		userWSId := payload.UserWorkspaceID.String()
