@@ -25,8 +25,8 @@ func NewUserService(
 
 func (s *userService) Register(ctx context.Context, data *model.RegisterRequest) (*model.RegisterResponse, error) {
 	if _, err := s.helpers.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
-		PhoneNumber: &data.PhoneNumber,
-		Email:       &data.Email,
+		PhoneNumber: data.PhoneNumber,
+		Email:       data.Email,
 		Password:    data.Password,
 	}); err != nil {
 		return nil, err

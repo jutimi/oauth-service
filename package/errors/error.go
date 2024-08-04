@@ -75,7 +75,7 @@ var messages = map[int]map[string]string{
 		LangVN: "Không tìm thấy người dùng. Vui lòng kiểm tra lại",
 	},
 	ErrCodeUserExisted: {
-		LangVN: "Người dùng đã đăng ký tài khoản. Vui lòng kiểm tra lại",
+		LangVN: "Người dùng đã đăng ký tài khoản. Vui lòng đăng nhập hoặc sử dụng sđt/email khác",
 	},
 	ErrCodeUserDeactivated: {
 		LangVN: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin để hỗ trợ",
