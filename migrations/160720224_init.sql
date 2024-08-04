@@ -7,7 +7,8 @@ CREATE TABLE users (
     is_active BOOLEAN DEFAULT true,
     limit_workspace INTEGER DEFAULT 1,
     created_at BIGINT,
-    updated_at BIGINT
+    updated_at BIGINT,
+    deleted_at BIGINT
 );
 
 CREATE TABLE permissions (
@@ -17,7 +18,8 @@ CREATE TABLE permissions (
     user_workspace_id uuid,
     scopes text NOT NULL,
     created_at bigint,
-    updated_at bigint
+    updated_at bigint,
+    deleted_at bigint
 );
 
 CREATE TABLE oauth (
@@ -31,5 +33,6 @@ CREATE TABLE oauth (
     login_at BIGINT,
     scope VARCHAR(10) NOT NULL,
     created_at BIGINT,
-    updated_at BIGINT
+    updated_at BIGINT,
+    deleted_at BIGINT
 );
