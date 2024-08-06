@@ -22,8 +22,9 @@ jobs:
         run: |
           envsubst < config.template.yml > config.yml
 
-      - name: Show generated config.yml
-        run: cat config.yml
+      - name: Generate filebeat.yml
+        run: |
+          envsubst < filebeat.yml > filebeat.yml
 
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: Build & push Docker image
