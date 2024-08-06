@@ -9,9 +9,11 @@ type JWT struct {
 }
 
 type Server struct {
-	Port      int    `mapstructure:"port"`
-	Mode      string `mapstructure:"mode"`
-	SentryUrl string `mapstructure:"sentry_url"`
+	Port         int    `mapstructure:"port"`
+	Mode         string `mapstructure:"mode"`
+	SentryUrl    string `mapstructure:"sentry_url"`
+	ServiceName  string `mapstructure:"service_name"`
+	CollectorUrl string `mapstructure:"collector_url"`
 }
 
 type GRPC struct {

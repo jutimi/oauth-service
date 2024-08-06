@@ -1,9 +1,0 @@
-#=========================== Filebeat inputs =============================
-filebeat.inputs:
-  - type: log
-    paths:
-      - /logs/*.log
-
-#----------------------------- Logstash output --------------------------------
-output.logstash:
-  hosts: ["logstash01:5044"]

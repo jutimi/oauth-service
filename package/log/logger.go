@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 )
 
 var logger *logrus.Logger
@@ -40,6 +41,12 @@ func Init() {
 
 	mw := io.MultiWriter(os.Stdout, file)
 	log.SetOutput(mw)
+	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+		logrus.PanicLevel,
+		logrus.FatalLevel,
+		logrus.ErrorLevel,
+		logrus.WarnLevel,
+	)))
 
 	logger = log
 }

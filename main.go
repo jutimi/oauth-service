@@ -15,6 +15,7 @@ import (
 	"oauth-server/external/server"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
+	"oauth-server/package/trace"
 	_validator "oauth-server/package/validator"
 	"oauth-server/utils"
 	"os"
@@ -27,6 +28,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/jutimi/grpc-service/oauth"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"google.golang.org/grpc"
 )
 
@@ -50,6 +52,7 @@ func main() {
 	gin.SetMode(conf.Server.Mode)
 	router := gin.Default()
 	router.Use(gin.LoggerWithWriter(logger.GetLogger().Writer()))
+	router.Use(otelgin.Middleware(conf.Server.ServiceName))
 
 	// Register validator
 	v := binding.Validator.Engine().(*validator.Validate)
@@ -63,41 +66,36 @@ func main() {
 	controller.RegisterControllers(router, services, middleware)
 
 	// Start server
+	srvErr := make(chan error, 1)
+	quit := make(chan os.Signal, 1)
+
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.Server.Port),
 		Handler: router,
 	}
+	go func() {
+		srvErr <- srv.ListenAndServe()
+	}()
 
-	if !gin.IsDebugging() {
-		go func() {
-			// service connections
-			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				log.Fatalf("listen: %s\n", err)
-			}
-		}()
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutdown Server ...")
 
-		quit := make(chan os.Signal)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-		log.Println("Shutdown Server ...")
-
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := srv.Shutdown(ctx); err != nil {
-			log.Fatal("Server Shutdown:", err)
-		}
-
-		// catching ctx.Done(). timeout of 5 seconds.
-		select {
-		case <-ctx.Done():
-			log.Println("timeout of 5 seconds.")
-		}
-		log.Println("Server exiting")
-	} else {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
 	}
+
+	// catching ctx.Done(). timeout of 5 seconds.
+	select {
+	case <-srvErr:
+		// Error when starting HTTP server.
+		return
+	case <-ctx.Done():
+		log.Println("timeout of 5 seconds.")
+	}
+	log.Println("Server exiting")
 }
 
 func init() {
@@ -118,6 +116,9 @@ func init() {
 	}); err != nil {
 		log.Fatalf("Error Init Sentry: %s", err.Error())
 	}
+
+	cleanup := trace.InitOTel()
+	defer cleanup(context.Background())
 }
 
 func startGRPCServer(
