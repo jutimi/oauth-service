@@ -128,7 +128,7 @@ func startGRPCServer(
 ) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", conf.GRPC.OAuthPort))
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error Init GRPC Port: %s", err.Error())
 	}
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
