@@ -5,7 +5,5 @@ filebeat.inputs:
       - /logs/*.log
 
 #----------------------------- Logstash output --------------------------------
-output.elasticsearch:
-  hosts: ${ELASTIC_HOSTS}
-  username: ${ELASTIC_USER}
-  password: ${ELASTIC_PASSWORD}
+output.logstash:
+  hosts: ["logstash01:5044"]
