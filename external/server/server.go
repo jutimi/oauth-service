@@ -297,7 +297,7 @@ func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyP
 		return &oauth.VerifyTokenResponse{Success: true}, nil
 	}
 
-	permission, err := s.helper.PermissionHelper.GetURLPermission(resource, action)
+	permission, err := s.helper.PermissionHelper.GetURLPermission(ctx, resource, action)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,

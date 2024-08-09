@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"oauth-server/app/helper"
 	"oauth-server/app/model"
 	"oauth-server/app/repository"
@@ -9,6 +10,7 @@ import (
 	"oauth-server/config"
 	"oauth-server/external/client"
 	"oauth-server/package/errors"
+	logger "oauth-server/package/log"
 	"oauth-server/utils"
 
 	"github.com/jutimi/grpc-service/workspace"
@@ -33,6 +35,13 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 	conf := config.GetConfiguration().Jwt
 	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
 	if err != nil {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "app/service/oauth.service.go",
+			FuncName:  "RefreshToken",
+			TraceData: fmt.Sprintf("%+v", data),
+			Msg:       fmt.Sprintf("GetScopeContext - %s", err.Error()),
+		})
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 
@@ -41,6 +50,13 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		// Verify refresh token
 		claims, err := utils.VerifyToken(data.RefreshToken, conf.UserRefreshTokenKey)
 		if err != nil {
+			logger.Println(logger.LogPrintln{
+				Ctx:       ctx,
+				FileName:  "app/service/oauth.service.go",
+				FuncName:  "RefreshToken",
+				TraceData: fmt.Sprintf("%+v", data),
+				Msg:       fmt.Sprintf("VerifyToken - User - %s", err.Error()),
+			})
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 		userPayload, ok := claims.(*utils.UserPayload)
@@ -65,7 +81,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		}
 
 		// Generate new token
-		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(ctx, user, utils.ACCESS_TOKEN)
 		if err != nil {
 			return nil, err
 		}
@@ -80,6 +96,13 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		// Verify refresh token
 		claims, err := utils.VerifyToken(data.RefreshToken, conf.WSRefreshTokenKey)
 		if err != nil {
+			logger.Println(logger.LogPrintln{
+				Ctx:       ctx,
+				FileName:  "app/service/oauth.service.go",
+				FuncName:  "RefreshToken",
+				TraceData: fmt.Sprintf("%+v", data),
+				Msg:       fmt.Sprintf("VerifyToken - Workspace - %s", err.Error()),
+			})
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
 		wsPayload, ok := claims.(*utils.WorkspacePayload)
@@ -103,11 +126,18 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			IsActive: &isActive,
 		})
 		if err != nil {
+			logger.Println(logger.LogPrintln{
+				Ctx:       ctx,
+				FileName:  "app/service/oauth.service.go",
+				FuncName:  "RefreshToken",
+				TraceData: fmt.Sprintf("%+v", data),
+				Msg:       fmt.Sprintf("GetUserWorkspaceByFilter - %s", err.Error()),
+			})
 			return nil, err
 		}
 
 		// Generate new token
-		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.Data, utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.Data, utils.ACCESS_TOKEN)
 		if err != nil {
 			return nil, err
 		}
@@ -146,11 +176,11 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Generate token
-		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateUserToken(ctx, user, utils.ACCESS_TOKEN)
 		if err != nil || accessToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		refreshToken, err := s.helpers.OauthHelper.GenerateUserToken(user, utils.REFRESH_TOKEN)
+		refreshToken, err := s.helpers.OauthHelper.GenerateUserToken(ctx, user, utils.REFRESH_TOKEN)
 		if err != nil || refreshToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
@@ -192,11 +222,11 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Generate token
-		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.GetData(), utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.GetData(), utils.ACCESS_TOKEN)
 		if err != nil || accessToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		refreshToken, err := s.helpers.OauthHelper.GenerateWSToken(userWS.GetData(), utils.REFRESH_TOKEN)
+		refreshToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.GetData(), utils.REFRESH_TOKEN)
 		if err != nil || refreshToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}

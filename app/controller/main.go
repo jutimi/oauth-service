@@ -7,15 +7,17 @@ import (
 	"oauth-server/app/service"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func RegisterControllers(
 	router *gin.Engine,
-	services service.ServiceCollections,
+	tracer trace.Tracer,
 	middleware middleware.MiddlewareCollections,
+	services service.ServiceCollections,
 ) {
-	api.NewApiUserController(router, services)
-	api.NewApiOAuthController(router, services, middleware)
+	api.NewApiUserController(router, tracer, services)
+	api.NewApiOAuthController(router, tracer, middleware, services)
 
 	cms.NewApiPermissionController(router, services)
 }

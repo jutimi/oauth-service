@@ -11,14 +11,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type userHandler struct {
+	tracer   trace.Tracer
 	services service.ServiceCollections
 }
 
-func NewApiUserController(router *gin.Engine, services service.ServiceCollections) {
-	handler := userHandler{services}
+func NewApiUserController(
+	router *gin.Engine,
+	tracer trace.Tracer,
+	services service.ServiceCollections,
+) {
+	handler := userHandler{tracer, services}
 
 	group := router.Group("api/v1/users")
 	{
@@ -35,8 +41,12 @@ func (h *userHandler) register(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
+	ctx, main := h.tracer.Start(ctx, "register")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.UserSvc.Register(ctx, &data)
 	if err != nil {

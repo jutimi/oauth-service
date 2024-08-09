@@ -1,12 +1,11 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"oauth-server/utils"
 	"os"
-	"reflect"
-	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -16,9 +15,10 @@ import (
 var logger *logrus.Logger
 
 type LogPrintln struct {
+	Ctx       context.Context
 	FileName  string
 	FuncName  string
-	TraceData string
+	TraceData interface{}
 	Msg       string
 }
 
@@ -38,9 +38,10 @@ func Init() {
 	if err != nil {
 		log.Fatalf("error_open_log_file: %v", err)
 	}
-
 	mw := io.MultiWriter(os.Stdout, file)
 	log.SetOutput(mw)
+
+	//
 	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,
 		logrus.FatalLevel,
@@ -56,13 +57,9 @@ func GetLogger() *logrus.Logger {
 }
 
 func Println(params LogPrintln) {
-	paramArr := make([]string, 0)
-	v := reflect.ValueOf(params)
-
-	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Interface() != "" {
-			paramArr = append(paramArr, fmt.Sprintf("%v", v.Field(i).Interface()))
-		}
-	}
-	GetLogger().Infof("%s \n", strings.Join(paramArr, " - "))
+	GetLogger().WithContext(params.Ctx).WithFields(logrus.Fields{
+		"filename":   params.FileName,
+		"func_name":  params.FuncName,
+		"trace_data": params.TraceData,
+	}).Println(params.Msg)
 }

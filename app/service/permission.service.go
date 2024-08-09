@@ -54,11 +54,11 @@ func (s *permissionService) AddUserWSPermission(
 	// Validate permission and get permission tree
 	permissionMemo := make(map[string]bool, 0)
 	for _, permission := range data.Permissions {
-		if err := s.helpers.PermissionHelper.ValidatePermission(permission); err != nil {
+		if err := s.helpers.PermissionHelper.ValidatePermission(ctx, permission); err != nil {
 			return nil, err
 		}
 
-		permissions := s.helpers.PermissionHelper.GetPermissions(permission)
+		permissions := s.helpers.PermissionHelper.GetPermissions(ctx, permission)
 		maps.Copy(permissionMemo, permissions)
 	}
 	permissionStr := ""

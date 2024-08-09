@@ -12,19 +12,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type oAuthHandler struct {
-	services   service.ServiceCollections
+	tracer     trace.Tracer
 	middleware middleware.MiddlewareCollections
+	services   service.ServiceCollections
 }
 
 func NewApiOAuthController(
 	router *gin.Engine,
-	services service.ServiceCollections,
+	tracer trace.Tracer,
 	middleware middleware.MiddlewareCollections,
+	services service.ServiceCollections,
 ) {
-	handler := oAuthHandler{services, middleware}
+	handler := oAuthHandler{tracer, middleware, services}
 
 	group := router.Group("api/v1/oauth")
 	{

@@ -2,11 +2,13 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"oauth-server/app/entity"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/package/database"
 	"oauth-server/package/errors"
+	logger "oauth-server/package/log"
 )
 
 type userHelper struct {
@@ -25,18 +27,6 @@ func (h *userHelper) CreateUser(
 	ctx context.Context,
 	data *CreateUserParams,
 ) (*entity.User, error) {
-	// Check user exited
-	existedUser, err := h.postgresRepo.UserRepo.FindExistedByFilter(ctx, &repository.FindUserByFilter{
-		PhoneNumber: data.PhoneNumber,
-		Email:       data.Email,
-	})
-	if err != nil {
-		return nil, errors.New(errors.ErrCodeInternalServerError)
-	}
-	if len(existedUser) > 0 {
-		return nil, errors.New(errors.ErrCodeUserExisted)
-	}
-
 	// Create user
 	tx := database.BeginPostgresTransaction()
 	if tx.Error != nil {
@@ -48,6 +38,14 @@ func (h *userHelper) CreateUser(
 	user.Email = data.Email
 	user.Password = data.Password
 	if err := h.postgresRepo.UserRepo.Create(ctx, tx, user); err != nil {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "app/helper/user.helper.go",
+			FuncName:  "CreateUser",
+			TraceData: fmt.Sprintf("%+v", data),
+			Msg:       fmt.Sprintf("CreateUser - %s", err.Error()),
+		})
+
 		tx.Rollback()
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}

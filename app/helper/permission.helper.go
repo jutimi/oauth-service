@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"context"
 	"oauth-server/app/model"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/package/errors"
@@ -20,7 +21,10 @@ func NewPermissionHelper(
 	}
 }
 
-func (h *permissionHelper) ValidatePermission(permission string) error {
+func (h *permissionHelper) ValidatePermission(
+	ctx context.Context,
+	permission string,
+) error {
 	permissionArr := strings.Split(permission, "_")
 	action := permissionArr[0]
 	resource := strings.Join(permissionArr[1:], "_")
@@ -37,7 +41,7 @@ func (h *permissionHelper) ValidatePermission(permission string) error {
 	return nil
 }
 
-func (h *permissionHelper) GetPermissions(permission string) map[string]bool {
+func (h *permissionHelper) GetPermissions(ctx context.Context, permission string) map[string]bool {
 	result := make(map[string]bool)
 
 	stacks := []string{permission}
@@ -73,7 +77,7 @@ func (h *permissionHelper) GetPermissions(permission string) map[string]bool {
 	return result
 }
 
-func (h *permissionHelper) GetURLPermission(resource, action string) (string, error) {
+func (h *permissionHelper) GetURLPermission(ctx context.Context, resource, action string) (string, error) {
 	if !utils.InSlice(resource, model.PERMISSION_RESOURCES) {
 		return "", errors.New(errors.ErrCodeForbidden)
 	}

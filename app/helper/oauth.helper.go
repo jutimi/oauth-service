@@ -30,7 +30,11 @@ func NewOauthHelper(
 	}
 }
 
-func (h *oauthHelper) GenerateUserToken(user *entity.User, tokenType string) (string, error) {
+func (h *oauthHelper) GenerateUserToken(
+	ctx context.Context,
+	user *entity.User,
+	tokenType string,
+) (string, error) {
 	var token string
 	var err error
 	conf := config.GetConfiguration().Jwt
@@ -45,10 +49,11 @@ func (h *oauthHelper) GenerateUserToken(user *entity.User, tokenType string) (st
 		token, err = utils.GenerateToken(payload, conf.UserAccessTokenKey, utils.USER_ACCESS_TOKEN_IAT)
 		if err != nil {
 			logger.Println(logger.LogPrintln{
+				Ctx:       ctx,
 				FileName:  "app/helper/oauth.helper.go",
 				FuncName:  "GenerateAccessToken",
-				TraceData: fmt.Sprintf("%s/%s", *user.Email, *user.PhoneNumber),
-				Msg:       err.Error(),
+				TraceData: &user,
+				Msg:       fmt.Sprintf("GenerateAccessToken - %s", err.Error()),
 			})
 			return token, err
 		}
@@ -56,10 +61,11 @@ func (h *oauthHelper) GenerateUserToken(user *entity.User, tokenType string) (st
 		token, err = utils.GenerateToken(payload, conf.UserRefreshTokenKey, utils.USER_REFRESH_TOKEN_IAT)
 		if err != nil {
 			logger.Println(logger.LogPrintln{
+				Ctx:       ctx,
 				FileName:  "app/service/user.service.go",
 				FuncName:  "GenerateRefreshToken",
-				TraceData: fmt.Sprintf("%s/%s", *user.Email, *user.PhoneNumber),
-				Msg:       err.Error(),
+				TraceData: &user,
+				Msg:       fmt.Sprintf("GenerateRefreshToken - %s", err.Error()),
 			})
 			return token, err
 		}
@@ -68,7 +74,11 @@ func (h *oauthHelper) GenerateUserToken(user *entity.User, tokenType string) (st
 	return token, nil
 }
 
-func (h *oauthHelper) GenerateWSToken(userWS *workspace.UserWorkspaceDetail, tokenType string) (string, error) {
+func (h *oauthHelper) GenerateWSToken(
+	ctx context.Context,
+	userWS *workspace.UserWorkspaceDetail,
+	tokenType string,
+) (string, error) {
 	var token string
 	var err error
 	conf := config.GetConfiguration().Jwt
@@ -92,7 +102,6 @@ func (h *oauthHelper) GenerateWSToken(userWS *workspace.UserWorkspaceDetail, tok
 		WorkspaceID:     workspaceId,
 		UserWorkspaceID: userWorkspaceId,
 	}
-
 	switch tokenType {
 	case utils.ACCESS_TOKEN:
 		token, err = utils.GenerateToken(payload, conf.WSAccessTokenKey, utils.WS_ACCESS_TOKEN_IAT)

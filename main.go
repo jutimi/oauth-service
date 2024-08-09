@@ -15,7 +15,6 @@ import (
 	"oauth-server/external/server"
 	"oauth-server/package/database"
 	logger "oauth-server/package/log"
-	"oauth-server/package/trace"
 	_validator "oauth-server/package/validator"
 	"oauth-server/utils"
 	"os"
@@ -28,12 +27,22 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/jutimi/grpc-service/oauth"
+	"github.com/uptrace/uptrace-go/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	conf := config.GetConfiguration()
+
+	// Init uptrace
+	uptrace.ConfigureOpentelemetry(
+		uptrace.WithDSN(conf.Server.UptraceDNS),
+		uptrace.WithServiceName(conf.Server.ServiceName),
+		uptrace.WithServiceVersion("1.0.0"),
+	)
+	tracer := otel.Tracer(conf.Server.ServiceName)
 
 	// Register repositories
 	postgresDB := database.GetPostgres()
@@ -63,7 +72,7 @@ func main() {
 	router.GET("/health-check", func(c *gin.Context) {
 		c.String(200, "OK")
 	})
-	controller.RegisterControllers(router, services, middleware)
+	controller.RegisterControllers(router, tracer, middleware, services)
 
 	// Start server
 	srvErr := make(chan error, 1)
@@ -82,7 +91,10 @@ func main() {
 	log.Println("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	defer func() {
+		cancel()
+		uptrace.Shutdown(ctx)
+	}()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
@@ -102,10 +114,14 @@ func init() {
 	rootDir := utils.RootDir()
 	configFile := fmt.Sprintf("%s/config.yml", rootDir)
 
+	// Init config
 	config.Init(configFile)
+	// Init database
 	database.InitPostgres()
+	// Init logger
 	logger.Init()
 
+	// Init sentry
 	if err := sentry.Init(sentry.ClientOptions{
 		Dsn:           config.GetConfiguration().Server.SentryUrl,
 		EnableTracing: true,
@@ -116,9 +132,6 @@ func init() {
 	}); err != nil {
 		log.Fatalf("Error Init Sentry: %s", err.Error())
 	}
-
-	cleanup := trace.InitOTel()
-	defer cleanup(context.Background())
 }
 
 func startGRPCServer(
