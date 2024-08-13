@@ -42,11 +42,12 @@ func Init() {
 	log.SetOutput(mw)
 
 	//
-	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+	log.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,
 		logrus.FatalLevel,
 		logrus.ErrorLevel,
 		logrus.WarnLevel,
+		logrus.InfoLevel,
 	)))
 
 	logger = log
