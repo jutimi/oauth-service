@@ -2,17 +2,16 @@ package helper
 
 import (
 	"context"
-	"fmt"
 	"oauth-server/app/entity"
 	"oauth-server/app/repository"
 	postgres_repository "oauth-server/app/repository/postgres"
 	"oauth-server/config"
 	"oauth-server/package/database"
 	"oauth-server/package/errors"
-	logger "oauth-server/package/log"
 	"oauth-server/utils"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jutimi/grpc-service/workspace"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -35,40 +34,29 @@ func (h *oauthHelper) GenerateUserToken(
 	user *entity.User,
 	tokenType string,
 ) (string, error) {
-	var token string
-	var err error
+	var key string
 	conf := config.GetConfiguration().Jwt
 
-	payload := &utils.UserPayload{
+	claims := &utils.UserPayload{
 		ID:    user.ID,
 		Scope: utils.USER_SCOPE,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer: conf.Issuer,
+		},
 	}
 
 	switch tokenType {
 	case utils.ACCESS_TOKEN:
-		token, err = utils.GenerateToken(payload, conf.UserAccessTokenKey, utils.USER_ACCESS_TOKEN_IAT)
-		if err != nil {
-			logger.Println(logger.LogPrintln{
-				Ctx:       ctx,
-				FileName:  "app/helper/oauth.helper.go",
-				FuncName:  "GenerateAccessToken",
-				TraceData: &user,
-				Msg:       fmt.Sprintf("GenerateAccessToken - %s", err.Error()),
-			})
-			return token, err
-		}
+		key = conf.UserAccessTokenKey
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.USER_ACCESS_TOKEN_IAT)
 	case utils.REFRESH_TOKEN:
-		token, err = utils.GenerateToken(payload, conf.UserRefreshTokenKey, utils.USER_REFRESH_TOKEN_IAT)
-		if err != nil {
-			logger.Println(logger.LogPrintln{
-				Ctx:       ctx,
-				FileName:  "app/service/user.service.go",
-				FuncName:  "GenerateRefreshToken",
-				TraceData: &user,
-				Msg:       fmt.Sprintf("GenerateRefreshToken - %s", err.Error()),
-			})
-			return token, err
-		}
+		key = conf.UserRefreshTokenKey
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.USER_REFRESH_TOKEN_IAT)
+	}
+
+	token, err := utils.GenerateToken(claims, key)
+	if err != nil {
+		return "", err
 	}
 
 	return token, nil
@@ -79,8 +67,7 @@ func (h *oauthHelper) GenerateWSToken(
 	userWS *workspace.UserWorkspaceDetail,
 	tokenType string,
 ) (string, error) {
-	var token string
-	var err error
+	var key string
 	conf := config.GetConfiguration().Jwt
 
 	userId, err := utils.ConvertStringToUUID(userWS.UserId)
@@ -96,23 +83,27 @@ func (h *oauthHelper) GenerateWSToken(
 		return "", err
 	}
 
-	payload := &utils.WorkspacePayload{
+	claims := &utils.WorkspacePayload{
 		ID:              userId,
 		Scope:           utils.WORKSPACE_SCOPE,
 		WorkspaceID:     workspaceId,
 		UserWorkspaceID: userWorkspaceId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer: conf.Issuer,
+		},
 	}
 	switch tokenType {
 	case utils.ACCESS_TOKEN:
-		token, err = utils.GenerateToken(payload, conf.WSAccessTokenKey, utils.WS_ACCESS_TOKEN_IAT)
-		if err != nil {
-			return token, err
-		}
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.WS_ACCESS_TOKEN_IAT)
+		key = conf.WSAccessTokenKey
 	case utils.REFRESH_TOKEN:
-		token, err = utils.GenerateToken(payload, conf.WSRefreshTokenKey, utils.WS_REFRESH_TOKEN_IAT)
-		if err != nil {
-			return token, err
-		}
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.WS_REFRESH_TOKEN_IAT)
+		key = conf.WSRefreshTokenKey
+	}
+
+	token, err := utils.GenerateToken(claims, key)
+	if err != nil {
+		return "", err
 	}
 
 	return token, nil
