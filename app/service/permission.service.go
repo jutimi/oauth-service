@@ -113,7 +113,7 @@ func (s *permissionService) GetPermissions(
 	permissions := make([]model.PermissionDetail, 0)
 
 	for permissionName, permission := range model.PERMISSION_TREE {
-		for action, _ := range permission {
+		for action := range permission {
 			permissions = append(permissions, model.PermissionDetail{
 				Name: fmt.Sprintf("%s_%s", action, permissionName),
 				Key:  fmt.Sprintf("%s_%s", action, permissionName),

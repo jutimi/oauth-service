@@ -69,9 +69,7 @@ func (h *permissionHelper) GetPermissions(ctx context.Context, permission string
 		}
 
 		// Add the next permissions to the stack
-		for _, nextPermission := range nextPermissions {
-			stacks = append(stacks, nextPermission)
-		}
+		stacks = append(stacks, nextPermissions...)
 	}
 
 	return result
