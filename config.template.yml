@@ -16,6 +16,8 @@ server:
   port: ${SERVER_PORT}
   mode: ${SERVER_MODE}
   sentry_url: ${SENTRY_URL}
+  uptrace_dns: ${UPTRACE_DNS}
+  service_name: ${SERVICE_NAME}
 
 jwt:
   issuer: ${JWT_ISSUER}

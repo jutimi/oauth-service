@@ -19,7 +19,7 @@ func FormatErrorResponse(err error) map[string]interface{} {
 	}
 }
 
-func GetScopeContext[T string | *UserPayload | *WorkspacePayload](ctx context.Context, key string) (T, error) {
+func GetScopeContext[T string | *UserPayload | *WorkspacePayload](ctx context.Context, key key) (T, error) {
 	ctxData := ctx.Value(key)
 	data, ok := ctxData.(T)
 	if !ok {

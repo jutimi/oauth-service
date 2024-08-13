@@ -33,7 +33,7 @@ func NewOAuthService(
 
 func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
-	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
+	scope, err := utils.GetScopeContext[string](ctx, utils.SCOPE_CONTEXT_KEY)
 	if err != nil {
 		logger.Println(logger.LogPrintln{
 			Ctx:       ctx,
@@ -151,9 +151,9 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 }
 
 func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}, error) {
-	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
+	scope, err := utils.GetScopeContext[string](ctx, utils.SCOPE_CONTEXT_KEY)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 
 	switch scope {
@@ -208,7 +208,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Check user workspace exist
-		userPayload, err := utils.GetScopeContext[*utils.UserPayload](ctx, string(utils.USER_CONTEXT_KEY))
+		userPayload, err := utils.GetScopeContext[*utils.UserPayload](ctx, utils.USER_CONTEXT_KEY)
 		if err != nil {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
@@ -251,7 +251,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 }
 
 func (s *oAuthService) Logout(ctx context.Context, data interface{}) (interface{}, error) {
-	scope, err := utils.GetScopeContext[string](ctx, string(utils.SCOPE_CONTEXT_KEY))
+	scope, err := utils.GetScopeContext[string](ctx, utils.SCOPE_CONTEXT_KEY)
 	if err != nil {
 		return nil, err
 	}

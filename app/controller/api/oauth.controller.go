@@ -52,9 +52,13 @@ func (h *oAuthHandler) refreshUserToken(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.USER_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "refresh-user-token")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.RefreshToken(ctx, &data)
 	if err != nil {
@@ -74,9 +78,13 @@ func (h *oAuthHandler) refreshWSToken(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "refresh-ws-token")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.RefreshToken(ctx, &data)
 	if err != nil {
@@ -96,9 +104,13 @@ func (h *oAuthHandler) userLogin(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.USER_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "user-login")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.Login(ctx, &data)
 	if err != nil {
@@ -118,9 +130,13 @@ func (h *oAuthHandler) userLogout(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.USER_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "user-logout")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.Logout(ctx, &data)
 	if err != nil {
@@ -140,9 +156,13 @@ func (h *oAuthHandler) wsLogin(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "ws-login")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.Login(ctx, &data)
 	if err != nil {
@@ -162,9 +182,13 @@ func (h *oAuthHandler) wsLogout(c *gin.Context) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
+	ctx, main := h.tracer.Start(ctx, "ws-logout")
+	defer func() {
+		cancel()
+		main.End()
+	}()
 
 	res, err := h.services.OAuthSvc.Logout(ctx, &data)
 	if err != nil {

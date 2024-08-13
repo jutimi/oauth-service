@@ -20,7 +20,7 @@ func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resErr := errors.New(errors.ErrCodeForbidden)
 
-		payload, err := utils.GetScopeContext[*utils.WorkspacePayload](c, string(utils.WORKSPACE_CONTEXT_KEY))
+		payload, err := utils.GetScopeContext[*utils.WorkspacePayload](c, utils.WORKSPACE_CONTEXT_KEY)
 		if err != nil {
 			c.JSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
