@@ -22,7 +22,7 @@ func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 
 		payload, err := utils.GetScopeContext[*utils.WorkspacePayload](c, utils.WORKSPACE_CONTEXT_KEY)
 		if err != nil {
-			c.JSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
 		}
 
@@ -34,11 +34,11 @@ func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 			Id: &userWSId,
 		})
 		if err != nil {
-			c.JSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
 		}
 		if userWS.Data.Role != workspace.UserWorkspaceRole_OWNER {
-			c.JSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
 		}
 

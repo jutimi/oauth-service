@@ -23,28 +23,28 @@ func (m *userMiddleware) Handler() gin.HandlerFunc {
 
 		token := c.GetHeader(utils.USER_AUTHORIZATION)
 		if token == "" {
-			c.JSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 		tokenArr := strings.Split(token, " ")
 		if len(tokenArr) != 2 {
-			c.JSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 		if tokenArr[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 
 		tokenPayload, err := utils.VerifyToken(tokenArr[1], conf.UserAccessTokenKey)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 
 		payload, ok := tokenPayload.(*utils.UserPayload)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 		c.Set(string(utils.USER_CONTEXT_KEY), payload)
