@@ -36,7 +36,7 @@ func NewApiOAuthController(
 		userGroup.POST("/login", handler.userLogin)
 		userGroup.POST("/logout", middleware.UserMW.Handler(), handler.userLogout)
 
-		WorkspaceGroup := userGroup.Group("workspaces")
+		WorkspaceGroup := group.Group("workspaces")
 		WorkspaceGroup.POST("/refresh", handler.refreshWorkspaceToken)
 		WorkspaceGroup.POST("/login", middleware.UserMW.Handler(), handler.WorkspaceLogin)
 		WorkspaceGroup.POST("/logout", middleware.WorkspaceMW.Handler(), handler.WorkspaceLogout)

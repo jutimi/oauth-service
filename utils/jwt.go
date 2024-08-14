@@ -44,23 +44,23 @@ func GenerateToken(claims jwt.Claims, key string) (string, error) {
 	return ss, nil
 }
 
-func VerifyToken(tokenString string, key string) (interface{}, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifyUserToken(tokenString, key string) (*UserPayload, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &UserPayload{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	if !token.Valid {
-		return nil, jwt.ErrTokenMalformed
+	if claims, ok := token.Claims.(*UserPayload); ok && token.Valid {
+		return claims, nil
 	}
 
-	return token, nil
+	return nil, jwt.ErrTokenMalformed
 }
 
-func ParseWorkspaceToken(tokenString string) (*WorkspacePayload, error) {
+func VerifyWorkspaceToken(tokenString, key string) (*WorkspacePayload, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &WorkspacePayload{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(""), nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		return nil, err
@@ -74,5 +74,5 @@ func ParseWorkspaceToken(tokenString string) (*WorkspacePayload, error) {
 }
 
 func GenerateExpireTime(expireTime int64) *jwt.NumericDate {
-	return jwt.NewNumericDate(time.Now().Add(time.Duration(expireTime)))
+	return jwt.NewNumericDate(time.Now().Add(time.Second * time.Duration(expireTime)))
 }

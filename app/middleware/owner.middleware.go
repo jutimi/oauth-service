@@ -19,12 +19,8 @@ func NewOwnerMiddleware() Middleware {
 func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resErr := errors.New(errors.ErrCodeForbidden)
-
-		payload, err := utils.GetScopeContext[*utils.WorkspacePayload](c, utils.WORKSPACE_CONTEXT_KEY)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
-			return
-		}
+		workspacePayload, _ := c.Get(string(utils.WORKSPACE_CONTEXT_KEY))
+		payload, _ := workspacePayload.(*utils.WorkspacePayload)
 
 		clientGRPC := client.NewWorkspaceClient()
 		defer clientGRPC.CloseConn()

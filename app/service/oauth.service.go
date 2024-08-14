@@ -48,7 +48,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 	switch scope {
 	case utils.USER_SCOPE:
 		// Verify refresh token
-		claims, err := utils.VerifyToken(data.RefreshToken, conf.UserRefreshTokenKey)
+		payload, err := utils.VerifyUserToken(data.RefreshToken, conf.UserRefreshTokenKey)
 		if err != nil {
 			logger.Println(logger.LogPrintln{
 				Ctx:       ctx,
@@ -59,22 +59,18 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			})
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		userPayload, ok := claims.(*utils.UserPayload)
-		if !ok {
-			return nil, errors.New(errors.ErrCodeInternalServerError)
-		}
 
 		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
 			RefreshToken: data.RefreshToken,
 			Scope:        scope,
-			UserId:       userPayload.Id,
+			UserId:       payload.Id,
 		}); err != nil {
 			return nil, err
 		}
 
 		// Check user exit
 		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-			Id: &userPayload.Id,
+			Id: &payload.Id,
 		})
 		if err != nil {
 			return nil, errors.New(errors.ErrCodeUserNotFound)
@@ -94,7 +90,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		defer clientGRPC.CloseConn()
 
 		// Verify refresh token
-		claims, err := utils.VerifyToken(data.RefreshToken, conf.WorkspaceRefreshTokenKey)
+		payload, err := utils.VerifyWorkspaceToken(data.RefreshToken, conf.WorkspaceRefreshTokenKey)
 		if err != nil {
 			logger.Println(logger.LogPrintln{
 				Ctx:       ctx,
@@ -105,21 +101,17 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			})
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		WorkspacePayload, ok := claims.(*utils.WorkspacePayload)
-		if !ok {
-			return nil, errors.New(errors.ErrCodeInternalServerError)
-		}
 
 		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
 			RefreshToken: data.RefreshToken,
 			Scope:        scope,
-			UserId:       WorkspacePayload.Id,
+			UserId:       payload.Id,
 		}); err != nil {
 			return nil, err
 		}
 
 		// Check user workspace exit
-		id := WorkspacePayload.UserWorkspaceId.String()
+		id := payload.UserWorkspaceId.String()
 		isActive := true
 		userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
 			Id:       &id,
@@ -208,7 +200,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Check user workspace exist
-		userPayload, err := utils.GetScopeContext[*utils.UserPayload](ctx, utils.USER_CONTEXT_KEY)
+		userPayload, err := utils.GetGinContext[*utils.UserPayload](ctx, string(utils.USER_CONTEXT_KEY))
 		if err != nil {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}

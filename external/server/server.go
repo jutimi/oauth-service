@@ -160,19 +160,8 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeInternalServerError)
 
-	payload, err := utils.VerifyToken(data.Token, conf.UserAccessTokenKey)
+	payload, err := utils.VerifyUserToken(data.Token, conf.UserAccessTokenKey)
 	if err != nil {
-		return &oauth.VerifyTokenResponse{
-			Success: false,
-			Error: grpc_utils.FormatErrorResponse(
-				int32(customErr.GetCode()),
-				customErr.Error(),
-			),
-		}, nil
-	}
-
-	userPayload, ok := payload.(utils.UserPayload)
-	if !ok {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
 			Error: grpc_utils.FormatErrorResponse(
@@ -184,7 +173,7 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 
 	isActive := true
 	if _, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-		Id:       &userPayload.Id,
+		Id:       &payload.Id,
 		IsActive: &isActive,
 	}); err != nil {
 		customErr = errors.New(errors.ErrCodeUserNotFound)
@@ -204,7 +193,7 @@ func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.Verif
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeInternalServerError)
 
-	payload, err := utils.VerifyToken(data.Token, conf.WorkspaceAccessTokenKey)
+	payload, err := utils.VerifyWorkspaceToken(data.Token, conf.WorkspaceAccessTokenKey)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
@@ -215,19 +204,8 @@ func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.Verif
 		}, nil
 	}
 
-	WorkspacePayload, ok := payload.(utils.WorkspacePayload)
-	if !ok {
-		return &oauth.VerifyTokenResponse{
-			Success: false,
-			Error: grpc_utils.FormatErrorResponse(
-				int32(customErr.GetCode()),
-				customErr.Error(),
-			),
-		}, nil
-	}
-
-	userWorkspaceId := WorkspacePayload.UserWorkspaceId.String()
-	WorkspaceId := WorkspacePayload.WorkspaceId.String()
+	userWorkspaceId := payload.UserWorkspaceId.String()
+	WorkspaceId := payload.WorkspaceId.String()
 	isActive := true
 	WorkspaceGRPC := client.NewWorkspaceClient()
 	defer WorkspaceGRPC.CloseConn()
@@ -277,8 +255,10 @@ func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.Verif
 }
 
 func (s *grpcServer) VerifyWorkspacePermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
+	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeForbidden)
-	payload, err := utils.ParseWorkspaceToken(data.Token)
+
+	payload, err := utils.VerifyWorkspaceToken(data.Token, conf.WorkspaceAccessTokenKey)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,

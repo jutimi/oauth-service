@@ -124,7 +124,7 @@ func (h *oauthHelper) ValidateRefreshToken(ctx context.Context, data *ValidateRe
 	}
 	currentTime := time.Now().Unix()
 	if currentTime > userOAuth.ExpireAt {
-		return errors.New(errors.ErrCodeTokenExpired)
+		return errors.New(errors.ErrCodeRefreshTokenExpired)
 	}
 
 	return nil

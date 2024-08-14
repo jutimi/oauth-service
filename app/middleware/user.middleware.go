@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	_errors "errors"
 	"net/http"
 	"oauth-server/config"
 	"oauth-server/package/errors"
@@ -8,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type userMiddleware struct {
@@ -36,19 +38,17 @@ func (m *userMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		tokenPayload, err := utils.VerifyToken(tokenArr[1], conf.UserAccessTokenKey)
+		payload, err := utils.VerifyUserToken(tokenArr[1], conf.UserAccessTokenKey)
 		if err != nil {
+			if _errors.Is(err, jwt.ErrTokenExpired) {
+				resErr = errors.New(errors.ErrCodeAccessTokenExpired)
+			}
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return
 		}
 
-		payload, ok := tokenPayload.(*utils.UserPayload)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
-			return
-		}
 		c.Set(string(utils.USER_CONTEXT_KEY), payload)
-
 		c.Next()
 	}
 }
