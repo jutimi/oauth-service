@@ -36,10 +36,10 @@ func NewApiOAuthController(
 		userGroup.POST("/login", handler.userLogin)
 		userGroup.POST("/logout", middleware.UserMW.Handler(), handler.userLogout)
 
-		wsGroup := userGroup.Group("workspaces")
-		wsGroup.POST("/refresh", handler.refreshWSToken)
-		wsGroup.POST("/login", middleware.UserMW.Handler(), handler.wsLogin)
-		wsGroup.POST("/logout", middleware.WorkspaceMW.Handler(), handler.wsLogout)
+		WorkspaceGroup := userGroup.Group("workspaces")
+		WorkspaceGroup.POST("/refresh", handler.refreshWorkspaceToken)
+		WorkspaceGroup.POST("/login", middleware.UserMW.Handler(), handler.WorkspaceLogin)
+		WorkspaceGroup.POST("/logout", middleware.WorkspaceMW.Handler(), handler.WorkspaceLogout)
 	}
 }
 
@@ -69,7 +69,7 @@ func (h *oAuthHandler) refreshUserToken(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.FormatSuccessResponse(res))
 }
 
-func (h *oAuthHandler) refreshWSToken(c *gin.Context) {
+func (h *oAuthHandler) refreshWorkspaceToken(c *gin.Context) {
 	var data model.RefreshTokenRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
@@ -80,7 +80,7 @@ func (h *oAuthHandler) refreshWSToken(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
-	ctx, main := h.tracer.Start(ctx, "refresh-ws-token")
+	ctx, main := h.tracer.Start(ctx, "refresh-Workspace-token")
 	defer func() {
 		cancel()
 		main.End()
@@ -147,7 +147,7 @@ func (h *oAuthHandler) userLogout(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.FormatSuccessResponse(res))
 }
 
-func (h *oAuthHandler) wsLogin(c *gin.Context) {
+func (h *oAuthHandler) WorkspaceLogin(c *gin.Context) {
 	var data model.WorkspaceLoginRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
@@ -158,7 +158,7 @@ func (h *oAuthHandler) wsLogin(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
-	ctx, main := h.tracer.Start(ctx, "ws-login")
+	ctx, main := h.tracer.Start(ctx, "Workspace-login")
 	defer func() {
 		cancel()
 		main.End()
@@ -173,7 +173,7 @@ func (h *oAuthHandler) wsLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.FormatSuccessResponse(res))
 }
 
-func (h *oAuthHandler) wsLogout(c *gin.Context) {
+func (h *oAuthHandler) WorkspaceLogout(c *gin.Context) {
 	var data model.UserLogoutRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
@@ -184,7 +184,7 @@ func (h *oAuthHandler) wsLogout(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 	ctx = context.WithValue(ctx, utils.SCOPE_CONTEXT_KEY, utils.WORKSPACE_SCOPE)
-	ctx, main := h.tracer.Start(ctx, "ws-logout")
+	ctx, main := h.tracer.Start(ctx, "Workspace-logout")
 	defer func() {
 		cancel()
 		main.End()

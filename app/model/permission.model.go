@@ -55,16 +55,16 @@ var PERMISSION_TREE = map[string]map[string][]string{
 	},
 }
 
-type AddUserWSPermissionRequest struct {
+type AddUserWorkspacePermissionRequest struct {
 	UserWorkspaceId uuid.UUID `json:"user_workspace_id" validate:"required,uuid"`
 	Permissions     []string  `json:"permissions" validate:"required"`
 }
-type AddUserWSPermissionResponse struct{}
+type AddUserWorkspacePermissionResponse struct{}
 
-type RevokeUserWSPermissionRequest struct {
+type RevokeUserWorkspacePermissionRequest struct {
 	UserWorkspaceId uuid.UUID `json:"user_workspace_id" validate:"required,uuid"`
 }
-type RevokeUserWSPermissionResponse struct{}
+type RevokeUserWorkspacePermissionResponse struct{}
 
 type GetPermissionsResponse struct {
 	Permissions []PermissionDetail `json:"permissions"`

@@ -31,25 +31,25 @@ func NewPermissionService(
 	}
 }
 
-func (s *permissionService) AddUserWSPermission(
+func (s *permissionService) AddUserWorkspacePermission(
 	ctx context.Context,
-	data *model.AddUserWSPermissionRequest,
-) (*model.AddUserWSPermissionResponse, error) {
+	data *model.AddUserWorkspacePermissionRequest,
+) (*model.AddUserWorkspacePermissionResponse, error) {
 	// Get user workspace data
-	clientGRPC := client.NewWsClient()
+	clientGRPC := client.NewWorkspaceClient()
 	defer clientGRPC.CloseConn()
 
-	userWSId := data.UserWorkspaceId.String()
+	userWorkspaceId := data.UserWorkspaceId.String()
 	isActive := true
-	userWS, err := clientGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
-		Id:       &userWSId,
+	userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		Id:       &userWorkspaceId,
 		IsActive: &isActive,
 	})
 	if err != nil {
 		return nil, err
 	}
-	userId, _ := utils.ConvertStringToUUID(userWS.Data.UserId)
-	wsId, _ := utils.ConvertStringToUUID(userWS.Data.WorkspaceId)
+	userId, _ := utils.ConvertStringToUUID(userWorkspace.Data.UserId)
+	WorkspaceId, _ := utils.ConvertStringToUUID(userWorkspace.Data.WorkspaceId)
 
 	// Validate permission and get permission tree
 	permissionMemo := make(map[string]bool, 0)
@@ -68,7 +68,7 @@ func (s *permissionService) AddUserWSPermission(
 
 	// Check and remove old permission
 	existedPermissions, err := s.postgresRepo.PermissionRepo.FindByFilter(ctx, &repository.FindPermissionByFilter{
-		UserWorkspaceID: &data.UserWorkspaceId,
+		UserWorkspaceId: &data.UserWorkspaceId,
 	})
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
@@ -78,24 +78,24 @@ func (s *permissionService) AddUserWSPermission(
 	}
 
 	// Create new permission
-	userWSPermission := entity.NewPermission()
-	userWSPermission.UserWorkspaceID = &data.UserWorkspaceId
-	userWSPermission.UserID = userId
-	userWSPermission.Scopes = permissionStr
-	userWSPermission.WorkspaceID = &wsId
-	if err := s.postgresRepo.PermissionRepo.Create(ctx, nil, userWSPermission); err != nil {
+	userWorkspacePermission := entity.NewPermission()
+	userWorkspacePermission.UserWorkspaceId = &data.UserWorkspaceId
+	userWorkspacePermission.UserId = userId
+	userWorkspacePermission.Scopes = permissionStr
+	userWorkspacePermission.WorkspaceId = &WorkspaceId
+	if err := s.postgresRepo.PermissionRepo.Create(ctx, nil, userWorkspacePermission); err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 
-	return &model.AddUserWSPermissionResponse{}, nil
+	return &model.AddUserWorkspacePermissionResponse{}, nil
 }
 
-func (s *permissionService) RevokeUserWSPermission(
+func (s *permissionService) RevokeUserWorkspacePermission(
 	ctx context.Context,
-	data *model.RevokeUserWSPermissionRequest,
-) (*model.RevokeUserWSPermissionResponse, error) {
+	data *model.RevokeUserWorkspacePermissionRequest,
+) (*model.RevokeUserWorkspacePermissionResponse, error) {
 	existedPermissions, err := s.postgresRepo.PermissionRepo.FindOneByFilter(ctx, &repository.FindPermissionByFilter{
-		UserWorkspaceID: &data.UserWorkspaceId,
+		UserWorkspaceId: &data.UserWorkspaceId,
 	})
 	if err != nil {
 		return nil, errors.New(errors.ErrCodePermissionNotFound)
@@ -104,7 +104,7 @@ func (s *permissionService) RevokeUserWSPermission(
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
 
-	return &model.RevokeUserWSPermissionResponse{}, nil
+	return &model.RevokeUserWorkspacePermissionResponse{}, nil
 }
 
 func (s *permissionService) GetPermissions(

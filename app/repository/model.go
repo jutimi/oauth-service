@@ -8,8 +8,8 @@ import (
 type FindUserByFilter struct {
 	Email        *string
 	PhoneNumber  *string
-	ID           *uuid.UUID
-	IDs          []uuid.UUID
+	Id           *uuid.UUID
+	Ids          []uuid.UUID
 	Emails       []string
 	PhoneNumbers []string
 	Limit        *int
@@ -18,7 +18,7 @@ type FindUserByFilter struct {
 }
 
 type FindOAuthByFilter struct {
-	UserID   *uuid.UUID
+	UserId   *uuid.UUID
 	Token    *string
 	PlatForm *string
 	Scope    *string
@@ -31,8 +31,8 @@ type FindByFilterForUpdateParams struct {
 }
 
 type FindPermissionByFilter struct {
-	WorkspaceID     *uuid.UUID
-	UserWorkspaceID *uuid.UUID
-	UserID          *uuid.UUID
+	WorkspaceId     *uuid.UUID
+	UserWorkspaceId *uuid.UUID
+	UserId          *uuid.UUID
 	Permission      *string
 }

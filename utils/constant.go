@@ -23,9 +23,9 @@ const (
 	USER_ACCESS_TOKEN_IAT  = 15 * 60           // 15 minutes
 	USER_REFRESH_TOKEN_IAT = 30 * 24 * 60 * 60 // 30 days
 
-	WORKSPACE_AUTHORIZATION = "Workspace-Authorization"
-	WS_ACCESS_TOKEN_IAT     = 15 * 60           // 15 minutes
-	WS_REFRESH_TOKEN_IAT    = 30 * 24 * 60 * 60 // 30 days
+	WORKSPACE_AUTHORIZATION     = "Workspace-Authorization"
+	Workspace_ACCESS_TOKEN_IAT  = 15 * 60           // 15 minutes
+	Workspace_REFRESH_TOKEN_IAT = 30 * 24 * 60 * 60 // 30 days
 )
 
 const (

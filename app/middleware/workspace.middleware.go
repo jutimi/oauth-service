@@ -36,7 +36,7 @@ func (m *workspaceMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		tokenPayload, err := utils.VerifyToken(tokenArr[1], conf.WSAccessTokenKey)
+		tokenPayload, err := utils.VerifyToken(tokenArr[1], conf.WorkspaceAccessTokenKey)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, utils.FormatErrorResponse(resErr))
 			return

@@ -29,7 +29,7 @@ func NewApiPermissionController(router *gin.Engine, services service.ServiceColl
 }
 
 func (h *permissionHandler) add(c *gin.Context) {
-	var data model.AddUserWSPermissionRequest
+	var data model.AddUserWorkspacePermissionRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(resErr))
@@ -40,7 +40,7 @@ func (h *permissionHandler) add(c *gin.Context) {
 	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 
-	res, err := h.services.PermissionSvc.AddUserWSPermission(ctx, &data)
+	res, err := h.services.PermissionSvc.AddUserWorkspacePermission(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return
@@ -50,7 +50,7 @@ func (h *permissionHandler) add(c *gin.Context) {
 }
 
 func (h *permissionHandler) revoke(c *gin.Context) {
-	var data model.RevokeUserWSPermissionRequest
+	var data model.RevokeUserWorkspacePermissionRequest
 	if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
 		resErr := _errors.NewValidatorError(err)
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(resErr))
@@ -61,7 +61,7 @@ func (h *permissionHandler) revoke(c *gin.Context) {
 	defer cancel()
 	ctx = context.WithValue(ctx, utils.GIN_CONTEXT_KEY, c)
 
-	res, err := h.services.PermissionSvc.RevokeUserWSPermission(ctx, &data)
+	res, err := h.services.PermissionSvc.RevokeUserWorkspacePermission(ctx, &data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.FormatErrorResponse(err))
 		return

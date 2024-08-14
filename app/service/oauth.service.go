@@ -67,14 +67,14 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
 			RefreshToken: data.RefreshToken,
 			Scope:        scope,
-			UserID:       userPayload.ID,
+			UserId:       userPayload.Id,
 		}); err != nil {
 			return nil, err
 		}
 
 		// Check user exit
 		user, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-			ID: &userPayload.ID,
+			Id: &userPayload.Id,
 		})
 		if err != nil {
 			return nil, errors.New(errors.ErrCodeUserNotFound)
@@ -90,11 +90,11 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			AccessToken: accessToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
-		clientGRPC := client.NewWsClient()
+		clientGRPC := client.NewWorkspaceClient()
 		defer clientGRPC.CloseConn()
 
 		// Verify refresh token
-		claims, err := utils.VerifyToken(data.RefreshToken, conf.WSRefreshTokenKey)
+		claims, err := utils.VerifyToken(data.RefreshToken, conf.WorkspaceRefreshTokenKey)
 		if err != nil {
 			logger.Println(logger.LogPrintln{
 				Ctx:       ctx,
@@ -105,7 +105,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 			})
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		wsPayload, ok := claims.(*utils.WorkspacePayload)
+		WorkspacePayload, ok := claims.(*utils.WorkspacePayload)
 		if !ok {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
@@ -113,15 +113,15 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		if err := s.helpers.OauthHelper.ValidateRefreshToken(ctx, &helper.ValidateRefreshTokenParams{
 			RefreshToken: data.RefreshToken,
 			Scope:        scope,
-			UserID:       wsPayload.ID,
+			UserId:       WorkspacePayload.Id,
 		}); err != nil {
 			return nil, err
 		}
 
 		// Check user workspace exit
-		id := wsPayload.UserWorkspaceID.String()
+		id := WorkspacePayload.UserWorkspaceId.String()
 		isActive := true
-		userWS, err := clientGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
 			Id:       &id,
 			IsActive: &isActive,
 		})
@@ -137,7 +137,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 		}
 
 		// Generate new token
-		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.Data, utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateWorkspaceToken(ctx, userWorkspace.Data, utils.ACCESS_TOKEN)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		if err := s.helpers.OauthHelper.ActiveToken(ctx, &helper.ActiveTokenParams{
 			Token:    refreshToken,
 			Scope:    scope,
-			UserID:   user.ID,
+			UserId:   user.Id,
 			TokenIAT: utils.USER_REFRESH_TOKEN_IAT,
 		}); err != nil {
 			return nil, err
@@ -199,7 +199,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 			RefreshToken: refreshToken,
 		}, nil
 	case utils.WORKSPACE_SCOPE:
-		clientGRPC := client.NewWsClient()
+		clientGRPC := client.NewWorkspaceClient()
 		defer clientGRPC.CloseConn()
 
 		form, ok := data.(*model.WorkspaceLoginRequest)
@@ -212,9 +212,9 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		if err != nil {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		userId := userPayload.ID.String()
-		userWS, err := clientGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
-			WorkspaceId: &form.WorkspaceID,
+		userId := userPayload.Id.String()
+		userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+			WorkspaceId: &form.WorkspaceId,
 			UserId:      &userId,
 		})
 		if err != nil {
@@ -222,11 +222,11 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		}
 
 		// Generate token
-		accessToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.GetData(), utils.ACCESS_TOKEN)
+		accessToken, err := s.helpers.OauthHelper.GenerateWorkspaceToken(ctx, userWorkspace.GetData(), utils.ACCESS_TOKEN)
 		if err != nil || accessToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
-		refreshToken, err := s.helpers.OauthHelper.GenerateWSToken(ctx, userWS.GetData(), utils.REFRESH_TOKEN)
+		refreshToken, err := s.helpers.OauthHelper.GenerateWorkspaceToken(ctx, userWorkspace.GetData(), utils.REFRESH_TOKEN)
 		if err != nil || refreshToken == "" {
 			return nil, errors.New(errors.ErrCodeInternalServerError)
 		}
@@ -235,7 +235,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		if err := s.helpers.OauthHelper.ActiveToken(ctx, &helper.ActiveTokenParams{
 			Token:    refreshToken,
 			Scope:    scope,
-			UserID:   userPayload.ID,
+			UserId:   userPayload.Id,
 			TokenIAT: utils.USER_REFRESH_TOKEN_IAT,
 		}); err != nil {
 			return nil, err

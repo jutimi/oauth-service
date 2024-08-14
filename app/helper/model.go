@@ -5,7 +5,7 @@ import "github.com/google/uuid"
 // Params func ValidateRefreshToken
 type ValidateRefreshTokenParams struct {
 	RefreshToken string
-	UserID       uuid.UUID
+	UserId       uuid.UUID
 	Scope        string
 }
 
@@ -19,7 +19,7 @@ type DeActiveTokenParams struct {
 type ActiveTokenParams struct {
 	Token    string
 	Scope    string
-	UserID   uuid.UUID
+	UserId   uuid.UUID
 	TokenIAT int
 }
 

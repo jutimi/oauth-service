@@ -89,8 +89,8 @@ func (r *oAuthRepository) buildFilter(
 	if filter.Token != nil {
 		query = query.Scopes(findByText(*filter.Token, "token"))
 	}
-	if filter.UserID != nil {
-		query = query.Scopes(findByString[uuid.UUID](*filter.UserID, "user_id"))
+	if filter.UserId != nil {
+		query = query.Scopes(findByString[uuid.UUID](*filter.UserId, "user_id"))
 	}
 	if filter.PlatForm != nil {
 		query = query.Scopes(findByText(*filter.PlatForm, "platform"))

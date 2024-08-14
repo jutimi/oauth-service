@@ -12,35 +12,35 @@ import (
 )
 
 type workspaceClient struct {
-	conn         *grpc.ClientConn
-	wsClient     workspace.WorkspaceRouteClient
-	userWSClient workspace.UserWorkspaceRouteClient
+	conn                *grpc.ClientConn
+	WorkspaceClient     workspace.WorkspaceRouteClient
+	userWorkspaceClient workspace.UserWorkspaceRouteClient
 }
 
 type WorkspaceClient interface {
 	GetWorkspaceByFilter(ctx context.Context, data *workspace.GetWorkspaceByFilterParams) (*workspace.WorkspaceResponse, error)
-	GetUserWSByFilter(ctx context.Context, data *workspace.GetUserWorkspaceByFilterParams) (*workspace.UserWorkspaceResponse, error)
+	GetUserWorkspaceByFilter(ctx context.Context, data *workspace.GetUserWorkspaceByFilterParams) (*workspace.UserWorkspaceResponse, error)
 	CloseConn()
 }
 
-func NewWsClient() WorkspaceClient {
+func NewWorkspaceClient() WorkspaceClient {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 	conf := config.GetConfiguration().GRPC
 
 	// Connect to Workspace grpc server
-	conn, err := grpc.NewClient(conf.WorkspacePort, opts...)
+	conn, err := grpc.NewClient(conf.WorkspaceUrl, opts...)
 	if err != nil {
 		log.Fatalf("Error connect to Workspace grpc server: %s", err.Error())
 	}
-	wsClient := workspace.NewWorkspaceRouteClient(conn)
-	userWSClient := workspace.NewUserWorkspaceRouteClient(conn)
+	WorkspaceClient := workspace.NewWorkspaceRouteClient(conn)
+	userWorkspaceClient := workspace.NewUserWorkspaceRouteClient(conn)
 
 	return &workspaceClient{
-		conn:         conn,
-		wsClient:     wsClient,
-		userWSClient: userWSClient,
+		conn:                conn,
+		WorkspaceClient:     WorkspaceClient,
+		userWorkspaceClient: userWorkspaceClient,
 	}
 }
 
@@ -48,7 +48,7 @@ func (c *workspaceClient) GetWorkspaceByFilter(
 	ctx context.Context,
 	data *workspace.GetWorkspaceByFilterParams,
 ) (*workspace.WorkspaceResponse, error) {
-	resp, err := c.wsClient.GetWorkspaceByFilter(ctx, data)
+	resp, err := c.WorkspaceClient.GetWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}
@@ -62,11 +62,11 @@ func (c *workspaceClient) GetWorkspaceByFilter(
 	return resp, nil
 }
 
-func (c *workspaceClient) GetUserWSByFilter(
+func (c *workspaceClient) GetUserWorkspaceByFilter(
 	ctx context.Context,
 	data *workspace.GetUserWorkspaceByFilterParams,
 ) (*workspace.UserWorkspaceResponse, error) {
-	resp, err := c.userWSClient.GetUserWorkspaceByFilter(ctx, data)
+	resp, err := c.userWorkspaceClient.GetUserWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
 	}

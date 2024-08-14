@@ -26,18 +26,18 @@ func (owner *ownerMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		clientGRPC := client.NewWsClient()
+		clientGRPC := client.NewWorkspaceClient()
 		defer clientGRPC.CloseConn()
 
-		userWSId := payload.UserWorkspaceID.String()
-		userWS, err := clientGRPC.GetUserWSByFilter(c, &workspace.GetUserWorkspaceByFilterParams{
-			Id: &userWSId,
+		userWorkspaceId := payload.UserWorkspaceId.String()
+		userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(c, &workspace.GetUserWorkspaceByFilterParams{
+			Id: &userWorkspaceId,
 		})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
 		}
-		if userWS.Data.Role != workspace.UserWorkspaceRole_OWNER {
+		if userWorkspace.Data.Role != workspace.UserWorkspaceRole_OWNER {
 			c.AbortWithStatusJSON(http.StatusForbidden, utils.FormatErrorResponse(resErr))
 			return
 		}

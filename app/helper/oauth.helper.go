@@ -38,7 +38,7 @@ func (h *oauthHelper) GenerateUserToken(
 	conf := config.GetConfiguration().Jwt
 
 	claims := &utils.UserPayload{
-		ID:    user.ID,
+		Id:    user.Id,
 		Scope: utils.USER_SCOPE,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer: conf.Issuer,
@@ -62,43 +62,43 @@ func (h *oauthHelper) GenerateUserToken(
 	return token, nil
 }
 
-func (h *oauthHelper) GenerateWSToken(
+func (h *oauthHelper) GenerateWorkspaceToken(
 	ctx context.Context,
-	userWS *workspace.UserWorkspaceDetail,
+	userWorkspace *workspace.UserWorkspaceDetail,
 	tokenType string,
 ) (string, error) {
 	var key string
 	conf := config.GetConfiguration().Jwt
 
-	userId, err := utils.ConvertStringToUUID(userWS.UserId)
+	userId, err := utils.ConvertStringToUUID(userWorkspace.UserId)
 	if err != nil {
 		return "", err
 	}
-	workspaceId, err := utils.ConvertStringToUUID(userWS.WorkspaceId)
+	workspaceId, err := utils.ConvertStringToUUID(userWorkspace.WorkspaceId)
 	if err != nil {
 		return "", err
 	}
-	userWorkspaceId, err := utils.ConvertStringToUUID(userWS.Id)
+	userWorkspaceId, err := utils.ConvertStringToUUID(userWorkspace.Id)
 	if err != nil {
 		return "", err
 	}
 
 	claims := &utils.WorkspacePayload{
-		ID:              userId,
+		Id:              userId,
 		Scope:           utils.WORKSPACE_SCOPE,
-		WorkspaceID:     workspaceId,
-		UserWorkspaceID: userWorkspaceId,
+		WorkspaceId:     workspaceId,
+		UserWorkspaceId: userWorkspaceId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer: conf.Issuer,
 		},
 	}
 	switch tokenType {
 	case utils.ACCESS_TOKEN:
-		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.WS_ACCESS_TOKEN_IAT)
-		key = conf.WSAccessTokenKey
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.Workspace_ACCESS_TOKEN_IAT)
+		key = conf.WorkspaceAccessTokenKey
 	case utils.REFRESH_TOKEN:
-		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.WS_REFRESH_TOKEN_IAT)
-		key = conf.WSRefreshTokenKey
+		claims.RegisteredClaims.ExpiresAt = utils.GenerateExpireTime(utils.Workspace_REFRESH_TOKEN_IAT)
+		key = conf.WorkspaceRefreshTokenKey
 	}
 
 	token, err := utils.GenerateToken(claims, key)
@@ -119,7 +119,7 @@ func (h *oauthHelper) ValidateRefreshToken(ctx context.Context, data *ValidateRe
 	if err != nil || userOAuth.Status != entity.OAuthStatusActive {
 		return errors.New(errors.ErrCodeUserNotFound)
 	}
-	if userOAuth.UserID != data.UserID {
+	if userOAuth.UserId != data.UserId {
 		return errors.New(errors.ErrCodeUnauthorized)
 	}
 	currentTime := time.Now().Unix()
@@ -171,7 +171,7 @@ func (h *oauthHelper) ActiveToken(ctx context.Context, data *ActiveTokenParams) 
 	}
 
 	filter := &repository.FindOAuthByFilter{
-		UserID: &data.UserID,
+		UserId: &data.UserId,
 		Scope:  &data.Scope,
 	}
 	userOAuth, err := h.postgresRepo.OAuthRepo.FindOneByFilterForUpdate(ctx, &repository.FindByFilterForUpdateParams{
@@ -181,7 +181,7 @@ func (h *oauthHelper) ActiveToken(ctx context.Context, data *ActiveTokenParams) 
 	})
 	if err == gorm.ErrRecordNotFound {
 		userOAuth = entity.NewOAuth()
-		userOAuth.UserID = data.UserID
+		userOAuth.UserId = data.UserId
 		userOAuth.Status = entity.OAuthStatusActive
 	}
 

@@ -9,7 +9,7 @@ import (
 
 type OauthHelper interface {
 	GenerateUserToken(ctx context.Context, user *entity.User, tokenType string) (string, error)
-	GenerateWSToken(ctx context.Context, userWS *workspace.UserWorkspaceDetail, tokenType string) (string, error)
+	GenerateWorkspaceToken(ctx context.Context, userWorkspace *workspace.UserWorkspaceDetail, tokenType string) (string, error)
 	ValidateRefreshToken(ctx context.Context, data *ValidateRefreshTokenParams) error
 	DeActiveToken(ctx context.Context, data *DeActiveTokenParams) error
 	ActiveToken(ctx context.Context, data *ActiveTokenParams) error

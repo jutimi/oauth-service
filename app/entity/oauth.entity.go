@@ -18,8 +18,8 @@ const (
 )
 
 type Oauth struct {
-	ID        uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
-	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
+	Id        uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	UserId    uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
 	IP        string    `json:"ip" gorm:"type:text;not null"`
 	Platform  string    `json:"platform" gorm:"type:varchar(10);not null"`
 	Token     string    `json:"token" gorm:"type:text;not null"`

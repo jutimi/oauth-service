@@ -26,7 +26,7 @@ type UserLogoutResponse struct {
 
 // OAuth Workspace
 type WorkspaceLoginRequest struct {
-	WorkspaceID string `json:"workspace_id" validate:"required"`
+	WorkspaceId string `json:"workspace_id" validate:"required"`
 }
 type WorkspaceLoginResponse struct {
 	AccessToken  string `json:"access_token"`

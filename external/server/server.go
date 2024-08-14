@@ -73,7 +73,7 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 
 	for _, user := range users {
 		usersRes = append(usersRes, &oauth.UserDetail{
-			Id:             user.ID.String(),
+			Id:             user.Id.String(),
 			PhoneNumber:    user.PhoneNumber,
 			Email:          user.Email,
 			IsActive:       user.IsActive,
@@ -118,7 +118,7 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 	return &oauth.UserResponse{
 		Success: true,
 		Data: &oauth.UserDetail{
-			Id:             user.ID.String(),
+			Id:             user.Id.String(),
 			PhoneNumber:    user.PhoneNumber,
 			Email:          user.Email,
 			IsActive:       user.IsActive,
@@ -147,7 +147,7 @@ func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParam
 		Success: true,
 		Error:   nil,
 		Data: &oauth.UserDetail{
-			Id:             user.ID.String(),
+			Id:             user.Id.String(),
 			PhoneNumber:    user.PhoneNumber,
 			Email:          user.Email,
 			IsActive:       user.IsActive,
@@ -184,7 +184,7 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 
 	isActive := true
 	if _, err := s.postgresRepo.UserRepo.FindOneByFilter(ctx, &repository.FindUserByFilter{
-		ID:       &userPayload.ID,
+		Id:       &userPayload.Id,
 		IsActive: &isActive,
 	}); err != nil {
 		customErr = errors.New(errors.ErrCodeUserNotFound)
@@ -200,11 +200,11 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 	return &oauth.VerifyTokenResponse{Success: true}, nil
 }
 
-func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
+func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeInternalServerError)
 
-	payload, err := utils.VerifyToken(data.Token, conf.WSAccessTokenKey)
+	payload, err := utils.VerifyToken(data.Token, conf.WorkspaceAccessTokenKey)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
@@ -215,7 +215,7 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 		}, nil
 	}
 
-	wsPayload, ok := payload.(utils.WorkspacePayload)
+	WorkspacePayload, ok := payload.(utils.WorkspacePayload)
 	if !ok {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
@@ -226,15 +226,15 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 		}, nil
 	}
 
-	userWSId := wsPayload.UserWorkspaceID.String()
-	wsId := wsPayload.WorkspaceID.String()
+	userWorkspaceId := WorkspacePayload.UserWorkspaceId.String()
+	WorkspaceId := WorkspacePayload.WorkspaceId.String()
 	isActive := true
-	wsGRPC := client.NewWsClient()
-	defer wsGRPC.CloseConn()
+	WorkspaceGRPC := client.NewWorkspaceClient()
+	defer WorkspaceGRPC.CloseConn()
 
 	// Check workspace data
-	ws, err := wsGRPC.GetWorkspaceByFilter(ctx, &workspace.GetWorkspaceByFilterParams{
-		Id:       &wsId,
+	Workspace, err := WorkspaceGRPC.GetWorkspaceByFilter(ctx, &workspace.GetWorkspaceByFilterParams{
+		Id:       &WorkspaceId,
 		IsActive: &isActive,
 	})
 	if err != nil {
@@ -246,15 +246,15 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 			),
 		}, nil
 	}
-	if ws.Error != nil {
+	if Workspace.Error != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
-			Error:   ws.Error,
+			Error:   Workspace.Error,
 		}, nil
 	}
 	// Check user workspace data
-	userWS, err := wsGRPC.GetUserWSByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
-		Id:       &userWSId,
+	userWorkspace, err := WorkspaceGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
+		Id:       &userWorkspaceId,
 		IsActive: &isActive,
 	})
 	if err != nil {
@@ -266,19 +266,19 @@ func (s *grpcServer) VerifyWSToken(ctx context.Context, data *oauth.VerifyTokenP
 			),
 		}, nil
 	}
-	if userWS.Error != nil {
+	if userWorkspace.Error != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
-			Error:   userWS.Error,
+			Error:   userWorkspace.Error,
 		}, nil
 	}
 
 	return &oauth.VerifyTokenResponse{Success: true}, nil
 }
 
-func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
+func (s *grpcServer) VerifyWorkspacePermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
 	customErr := errors.New(errors.ErrCodeForbidden)
-	payload, err := utils.ParseWSToken(data.Token)
+	payload, err := utils.ParseWorkspaceToken(data.Token)
 	if err != nil {
 		return &oauth.VerifyTokenResponse{
 			Success: false,
@@ -310,7 +310,7 @@ func (s *grpcServer) VerifyWSPermission(ctx context.Context, data *oauth.VerifyP
 
 	// Check user permission
 	if _, err := s.postgresRepo.PermissionRepo.FindOneByFilter(ctx, &repository.FindPermissionByFilter{
-		UserWorkspaceID: &payload.UserWorkspaceID,
+		UserWorkspaceId: &payload.UserWorkspaceId,
 		Permission:      &permission,
 	}); err != nil {
 		return &oauth.VerifyTokenResponse{
@@ -348,7 +348,7 @@ func (s *grpcServer) BulkCreateUsers(ctx context.Context, data *oauth.CreateUser
 	}
 	for _, user := range users {
 		usersRes = append(usersRes, &oauth.UserDetail{
-			Id:             user.ID.String(),
+			Id:             user.Id.String(),
 			PhoneNumber:    user.PhoneNumber,
 			Email:          user.Email,
 			IsActive:       user.IsActive,
@@ -368,8 +368,14 @@ func convertUserParamsToFilter(data *oauth.GetUserByFilterParams) (*repository.F
 	var userId uuid.UUID
 	var userIds []uuid.UUID
 	var err error
-	limit := int(*data.Limit)
-	offset := int(*data.Offset)
+	var limit, offset int
+
+	if data.Limit != nil {
+		limit = int(*data.Limit)
+	}
+	if data.Offset != nil {
+		offset = int(*data.Offset)
+	}
 
 	if data.Id != nil {
 		userId, err = utils.ConvertStringToUUID(*data.Id)
@@ -391,10 +397,10 @@ func convertUserParamsToFilter(data *oauth.GetUserByFilterParams) (*repository.F
 	return &repository.FindUserByFilter{
 		Email:        data.Email,
 		PhoneNumber:  data.PhoneNumber,
-		ID:           &userId,
+		Id:           &userId,
 		Limit:        &limit,
 		Offset:       &offset,
-		IDs:          userIds,
+		Ids:          userIds,
 		Emails:       data.Emails,
 		PhoneNumbers: data.PhoneNumbers,
 		IsActive:     data.IsActive,
