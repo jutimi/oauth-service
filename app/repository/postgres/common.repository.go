@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func findByString[T uuid.UUID | string | int | bool](str T, field string) func(db *gorm.DB) *gorm.DB {
+func whereBy[T uuid.UUID | string | int | bool](str T, field string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(fmt.Sprintf("%s = ?", field), str)
 	}
@@ -20,22 +20,22 @@ func paginate(limit, offset int) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func findByText(text, field string) func(db *gorm.DB) *gorm.DB {
+func whereByText(text, field string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		searchText := "%" + text + "%"
 		return db.Where(fmt.Sprintf("%s LIKE ?", field), searchText)
 	}
 }
 
-func findBySlice[T []uuid.UUID | []string | []int](data T, field string) func(db *gorm.DB) *gorm.DB {
+func whereBySlice[T []uuid.UUID | []string | []int](data T, field string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(fmt.Sprintf("%s IN ?", field), data)
 	}
 }
 
-func orById(id uuid.UUID, field string) func(db *gorm.DB) *gorm.DB {
+func orBy[T uuid.UUID | string | int | bool](str T, field string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Or(fmt.Sprintf("%s = ?", field), id)
+		return db.Or(fmt.Sprintf("%s = ?", field), str)
 	}
 }
 

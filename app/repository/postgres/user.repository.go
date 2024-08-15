@@ -128,28 +128,28 @@ func (r *userRepository) buildFilter(
 	}
 
 	if filter.Email != nil && *filter.Email != "" {
-		query = query.Scopes(findByText(*filter.Email, "email"))
+		query = query.Scopes(whereBy(*filter.Email, "email"))
 	}
 	if filter.PhoneNumber != nil && *filter.PhoneNumber != "" {
-		query = query.Scopes(findByText(*filter.PhoneNumber, "phone_number"))
+		query = query.Scopes(whereBy(*filter.PhoneNumber, "phone_number"))
 	}
 	if filter.Id != nil && *filter.Id != uuid.Nil {
-		query = query.Scopes(findByString[uuid.UUID](*filter.Id, "id"))
+		query = query.Scopes(whereBy[uuid.UUID](*filter.Id, "id"))
 	}
 	if filter.Ids != nil && len(filter.Ids) > 0 {
-		query = query.Scopes(findBySlice(filter.Ids, "id"))
+		query = query.Scopes(whereBySlice(filter.Ids, "id"))
 	}
 	if filter.Emails != nil && len(filter.Emails) > 0 {
-		query = query.Scopes(findBySlice(filter.Emails, "email"))
+		query = query.Scopes(whereBySlice(filter.Emails, "email"))
 	}
 	if filter.PhoneNumbers != nil && len(filter.PhoneNumbers) > 0 {
-		query = query.Scopes(findBySlice(filter.PhoneNumbers, "phone_number"))
+		query = query.Scopes(whereBySlice(filter.PhoneNumbers, "phone_number"))
 	}
 	if filter.Limit != nil && filter.Offset != nil {
 		query = query.Scopes(paginate(*filter.Limit, *filter.Offset))
 	}
 	if filter.IsActive != nil {
-		query = query.Scopes(findByString(*filter.IsActive, "is_active"))
+		query = query.Scopes(whereBy(*filter.IsActive, "is_active"))
 	}
 
 	return query
@@ -172,7 +172,7 @@ func (r *userRepository) buildExistedFilter(
 		query = query.Scopes(orByText(*filter.PhoneNumber, "phone_number"))
 	}
 	if filter.Id != nil && *filter.Id != uuid.Nil {
-		query = query.Scopes(orById(*filter.Id, "id"))
+		query = query.Scopes(orBy(*filter.Id, "id"))
 	}
 	if filter.Ids != nil && len(filter.Ids) > 0 {
 		query = query.Scopes(orBySlice(filter.Ids, "id"))

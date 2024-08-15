@@ -104,13 +104,13 @@ func (r *permissionRepository) buildFilter(
 	}
 
 	if filter.UserId != nil && *filter.UserId != uuid.Nil {
-		query = query.Scopes(findByString[uuid.UUID](*filter.UserId, "user_id"))
+		query = query.Scopes(whereBy[uuid.UUID](*filter.UserId, "user_id"))
 	}
 	if filter.WorkspaceId != nil && *filter.WorkspaceId != uuid.Nil {
-		query = query.Scopes(findByString[uuid.UUID](*filter.WorkspaceId, "workspace_id"))
+		query = query.Scopes(whereBy[uuid.UUID](*filter.WorkspaceId, "workspace_id"))
 	}
 	if filter.UserWorkspaceId != nil && *filter.UserWorkspaceId != uuid.Nil {
-		query = query.Scopes(findByString[uuid.UUID](*filter.UserWorkspaceId, "user_workspace_id"))
+		query = query.Scopes(whereBy[uuid.UUID](*filter.UserWorkspaceId, "user_workspace_id"))
 	}
 	if filter.Permission != nil && *filter.Permission != "" {
 		searchText := "%/" + *filter.Permission + "/%"
