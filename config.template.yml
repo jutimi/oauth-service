@@ -27,5 +27,5 @@ jwt:
   workspace_refresh_token_key: ${JWT_WORKSPACE_REFRESH_TOKEN_KEY}
 
 grpc:
-  oauth_port: ${GRPC_OAUTH_PORT}
-  workspace_port: ${GRPC_WORKSPACE_PORT}
+  oauth_url: ${GRPC_OAUTH_URL}
+  workspace_url: ${GRPC_WORKSPACE_URL}
