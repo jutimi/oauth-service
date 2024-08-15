@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 )
@@ -20,4 +21,12 @@ func ConvertToCamelCase(str string) string {
 	// Concatenate the words
 	result := strings.Join(parts, "")
 	return result
+}
+
+func ConvertStructToString(data interface{}) string {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return ""
+	}
+	return string(jsonData)
 }

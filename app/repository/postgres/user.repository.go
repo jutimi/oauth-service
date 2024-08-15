@@ -133,7 +133,7 @@ func (r *userRepository) buildFilter(
 	if filter.PhoneNumber != nil && *filter.PhoneNumber != "" {
 		query = query.Scopes(findByText(*filter.PhoneNumber, "phone_number"))
 	}
-	if filter.Id != nil {
+	if filter.Id != nil && *filter.Id != uuid.Nil {
 		query = query.Scopes(findByString[uuid.UUID](*filter.Id, "id"))
 	}
 	if filter.Ids != nil && len(filter.Ids) > 0 {
@@ -149,7 +149,7 @@ func (r *userRepository) buildFilter(
 		query = query.Scopes(paginate(*filter.Limit, *filter.Offset))
 	}
 	if filter.IsActive != nil {
-		query = query.Scopes(findByBool(*filter.IsActive, "is_active"))
+		query = query.Scopes(findByString(*filter.IsActive, "is_active"))
 	}
 
 	return query
@@ -171,7 +171,7 @@ func (r *userRepository) buildExistedFilter(
 	if filter.PhoneNumber != nil && *filter.PhoneNumber != "" {
 		query = query.Scopes(orByText(*filter.PhoneNumber, "phone_number"))
 	}
-	if filter.Id != nil {
+	if filter.Id != nil && *filter.Id != uuid.Nil {
 		query = query.Scopes(orById(*filter.Id, "id"))
 	}
 	if filter.Ids != nil && len(filter.Ids) > 0 {

@@ -70,6 +70,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/jutimi/grpc-service v0.0.0-20240729102354-75656f5e0067 h1:mngJBkUknOcL9Mb0VBxIyZNu783uDuZa5h778wFq6As=
 github.com/jutimi/grpc-service v0.0.0-20240729102354-75656f5e0067/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
+github.com/jutimi/grpc-service v0.0.0-20240814090842-d9dadf8659bc h1:lBQMNcLeGXrW1+GAIWKeuSdgcRzup/JGOv0RT4I0B0E=
+github.com/jutimi/grpc-service v0.0.0-20240814090842-d9dadf8659bc/go.mod h1:mXMVpNQtYABGmU8juITnBqrltPWonY7/6m5wZUdHR0Y=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.2.8 h1:+StwCXwm9PdpiEkPyzBXIy+M9KUb4ODm0Zarf1kS5BM=
 github.com/klauspost/cpuid/v2 v2.2.8/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=

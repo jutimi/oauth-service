@@ -143,6 +143,7 @@ func (s *oAuthService) RefreshToken(ctx context.Context, data *model.RefreshToke
 }
 
 func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}, error) {
+	limit := int32(1)
 	scope, err := utils.GetScopeContext[string](ctx, utils.SCOPE_CONTEXT_KEY)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
@@ -208,6 +209,7 @@ func (s *oAuthService) Login(ctx context.Context, data interface{}) (interface{}
 		userWorkspace, err := clientGRPC.GetUserWorkspaceByFilter(ctx, &workspace.GetUserWorkspaceByFilterParams{
 			WorkspaceId: &form.WorkspaceId,
 			UserId:      &userId,
+			Limit:       &limit,
 		})
 		if err != nil {
 			return nil, err

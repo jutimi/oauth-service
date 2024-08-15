@@ -8,12 +8,14 @@ import (
 	"oauth-server/config"
 	"oauth-server/external/client"
 	"oauth-server/package/errors"
+	logger "oauth-server/package/log"
 	"oauth-server/utils"
 	"strings"
 
 	"github.com/jutimi/grpc-service/oauth"
 	grpc_utils "github.com/jutimi/grpc-service/utils"
 	"github.com/jutimi/grpc-service/workspace"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/google/uuid"
 )
@@ -42,9 +44,17 @@ func NewGRPCServer(
 }
 
 func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserByFilterParams) (*oauth.UsersResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "GetUsersByFilter",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
 
 	var usersRes []*oauth.UserDetail
-
 	filter, err := convertUserParamsToFilter(data)
 	if err != nil {
 		customErr := errors.New(errors.ErrCodeInternalServerError)
@@ -89,6 +99,16 @@ func (s *grpcServer) GetUsersByFilter(ctx context.Context, data *oauth.GetUserBy
 }
 
 func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByFilterParams) (*oauth.UserResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "GetUserByFilter",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	filter, err := convertUserParamsToFilter(data)
 	if err != nil {
 		customErr := errors.New(errors.ErrCodeInternalServerError)
@@ -129,6 +149,16 @@ func (s *grpcServer) GetUserByFilter(ctx context.Context, data *oauth.GetUserByF
 }
 
 func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParams) (*oauth.UserResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "CreateUser",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	user, err := s.helper.UserHelper.CreateUser(ctx, &helper.CreateUserParams{
 		PhoneNumber: data.PhoneNumber,
 		Email:       data.Email,
@@ -157,6 +187,16 @@ func (s *grpcServer) CreateUser(ctx context.Context, data *oauth.CreateUserParam
 }
 
 func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "VerifyUserToken",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeInternalServerError)
 
@@ -190,6 +230,16 @@ func (s *grpcServer) VerifyUserToken(ctx context.Context, data *oauth.VerifyToke
 }
 
 func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.VerifyTokenParams) (*oauth.VerifyTokenResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "VerifyWorkspaceToken",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeInternalServerError)
 
@@ -255,6 +305,16 @@ func (s *grpcServer) VerifyWorkspaceToken(ctx context.Context, data *oauth.Verif
 }
 
 func (s *grpcServer) VerifyWorkspacePermission(ctx context.Context, data *oauth.VerifyPermissionParams) (*oauth.VerifyTokenResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "VerifyWorkspacePermission",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	conf := config.GetConfiguration().Jwt
 	customErr := errors.New(errors.ErrCodeForbidden)
 
@@ -306,6 +366,16 @@ func (s *grpcServer) VerifyWorkspacePermission(ctx context.Context, data *oauth.
 }
 
 func (s *grpcServer) BulkCreateUsers(ctx context.Context, data *oauth.CreateUsersParams) (*oauth.UsersResponse, error) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		logger.Println(logger.LogPrintln{
+			Ctx:       ctx,
+			FileName:  "external/server/server.go",
+			FuncName:  "BulkCreateUsers",
+			TraceData: utils.ConvertStructToString(data),
+			Msg:       "InComing Metadata: " + utils.ConvertStructToString(md),
+		})
+	}
+
 	params := make([]helper.CreateUserParams, 0)
 	usersRes := make([]*oauth.UserDetail, 0)
 

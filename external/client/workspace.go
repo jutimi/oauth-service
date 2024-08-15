@@ -6,6 +6,7 @@ import (
 	"oauth-server/config"
 	"oauth-server/package/errors"
 
+	"github.com/jutimi/grpc-service/utils"
 	"github.com/jutimi/grpc-service/workspace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -48,6 +49,12 @@ func (c *workspaceClient) GetWorkspaceByFilter(
 	ctx context.Context,
 	data *workspace.GetWorkspaceByFilterParams,
 ) (*workspace.WorkspaceResponse, error) {
+	conf := config.GetConfiguration().Server
+	ctx = utils.GenerateContext(utils.Metadata{
+		Ctx:         ctx,
+		ServiceName: conf.ServiceName,
+	})
+
 	resp, err := c.WorkspaceClient.GetWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
@@ -66,6 +73,12 @@ func (c *workspaceClient) GetUserWorkspaceByFilter(
 	ctx context.Context,
 	data *workspace.GetUserWorkspaceByFilterParams,
 ) (*workspace.UserWorkspaceResponse, error) {
+	conf := config.GetConfiguration().Server
+	ctx = utils.GenerateContext(utils.Metadata{
+		Ctx:         ctx,
+		ServiceName: conf.ServiceName,
+	})
+
 	resp, err := c.userWorkspaceClient.GetUserWorkspaceByFilter(ctx, data)
 	if err != nil {
 		return nil, errors.New(errors.ErrCodeInternalServerError)
