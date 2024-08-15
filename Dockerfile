@@ -18,6 +18,5 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/config.yml .
 COPY --from=builder /app/logs ./logs
-COPY --from=builder /app/filebeat.yml .
 
 CMD ["./main"]
